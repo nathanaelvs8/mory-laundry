@@ -123,8 +123,8 @@ const AdminOrderDetail = () => {
                         </tr>
                     </thead>
                     <tbody>
-                        {order.items && order.items.length > 0 ? (
-                            order.items.map((item, i) => (
+                        {(order.items || order.details) && (order.items || order.details).length > 0 ? (
+                            (order.items || order.details).map((item, i) => (
                                 <tr key={i}>
                                     <td>{item.service_name}</td>
                                     <td style={{textAlign: 'center'}}>{item.quantity} {item.unit}</td>
