@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
-import { ordersAPI } from '../../services/api.js';
+import { ordersAPI, usersAPI } from '../../services/api';
 import { FaShoppingCart, FaCheckCircle, FaClock, FaUsers, FaEye } from 'react-icons/fa';
 
 const AdminDashboard = () => {
-    const [stats, setStats] = useState({ totalOrders: 0, completedOrders: 0, pendingOrders: 0, totalUsers: 0, totalRevenue: 0 });
+    const [stats, setStats] = useState({ total: 0, completed: 0, processing: 0, customers: 0 });
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
 
@@ -13,12 +13,20 @@ const AdminDashboard = () => {
 
     const loadData = async () => {
         try {
-            const [statsRes, ordersRes] = await Promise.all([
-                ordersAPI.getStats(),
-                ordersAPI.getAll()
+            const [ordersRes, usersRes] = await Promise.all([
+                ordersAPI.getAll(),
+                usersAPI.getAll()
             ]);
-            setStats(statsRes.data.data);
-            setRecentOrders(ordersRes.data.data.slice(0, 5));
+            const orders = ordersRes.data.data || [];
+            const users = usersRes.data.data || [];
+            
+            setRecentOrders(orders.slice(0, 5));
+            setStats({
+                total: orders.length,
+                completed: orders.filter(o => o.status === 'Selesai').length,
+                processing: orders.filter(o => !['Selesai', 'Dibatalkan', 'Antrian'].includes(o.status)).length,
+                customers: users.filter(u => u.role === 'pelanggan').length
+            });
         } catch (err) { console.error(err); }
         setLoading(false);
     };
@@ -37,19 +45,19 @@ const AdminDashboard = () => {
             <div className="stats-grid">
                 <div className="stat-card">
                     <div className="stat-icon gold"><FaShoppingCart /></div>
-                    <div><div className="stat-value">{stats.totalOrders}</div><div className="stat-label">Total Pesanan</div></div>
+                    <div><div className="stat-value">{stats.total}</div><div className="stat-label">Total Pesanan</div></div>
                 </div>
                 <div className="stat-card">
                     <div className="stat-icon green"><FaCheckCircle /></div>
-                    <div><div className="stat-value">{stats.completedOrders}</div><div className="stat-label">Pesanan Selesai</div></div>
+                    <div><div className="stat-value">{stats.completed}</div><div className="stat-label">Pesanan Selesai</div></div>
                 </div>
                 <div className="stat-card">
                     <div className="stat-icon orange"><FaClock /></div>
-                    <div><div className="stat-value">{stats.pendingOrders}</div><div className="stat-label">Dalam Proses</div></div>
+                    <div><div className="stat-value">{stats.processing}</div><div className="stat-label">Dalam Proses</div></div>
                 </div>
                 <div className="stat-card">
-                    <div className="stat-icon blue"><FaUsers /></div>
-                    <div><div className="stat-value">{stats.totalUsers}</div><div className="stat-label">Total Pelanggan</div></div>
+                    <div className="stat-icon purple"><FaUsers /></div>
+                    <div><div className="stat-value">{stats.customers}</div><div className="stat-label">Total Pelanggan</div></div>
                 </div>
             </div>
 
@@ -60,21 +68,32 @@ const AdminDashboard = () => {
                 </div>
                 <table>
                     <thead>
-                        <tr><th>No. Order</th><th>Pelanggan</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr>
+                        <tr>
+                            <th>No. Order</th>
+                            <th>Pelanggan</th>
+                            <th>Tanggal</th>
+                            <th style={{textAlign: 'right'}}>Total</th>
+                            <th style={{textAlign: 'center'}}>Status</th>
+                            <th style={{width: 120}}>Aksi</th>
+                        </tr>
                     </thead>
                     <tbody>
                         {loading ? (
                             <tr><td colSpan="6" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
                         ) : recentOrders.length === 0 ? (
                             <tr><td colSpan="6" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan</td></tr>
-                        ) : recentOrders.map(order => (
-                            <tr key={order.id}>
-                                <td><strong>{order.order_number}</strong></td>
-                                <td>{order.customer_name}</td>
-                                <td>{formatDate(order.entry_date)}</td>
-                                <td>Rp {formatPrice(order.total_price)}</td>
-                                <td><span className={`status-badge ${getStatusClass(order.status)}`}>{order.status}</span></td>
-                                <td><Link to={`/admin/orders/${order.id}`} className="action-btn edit"><FaEye /></Link></td>
+                        ) : recentOrders.map(o => (
+                            <tr key={o.id}>
+                                <td><strong>{o.order_number}</strong></td>
+                                <td>{o.customer_name}</td>
+                                <td>{formatDate(o.entry_date)}</td>
+                                <td style={{textAlign: 'right'}}>Rp {formatPrice(o.total_price)}</td>
+                                <td style={{textAlign: 'center'}}><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
+                                <td>
+                                    <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 15px'}}>
+                                        <FaEye /> Detail
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

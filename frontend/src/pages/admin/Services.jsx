@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
-import { servicesAPI } from '../../services/api.js';
+import { servicesAPI } from '../../services/api';
 import { FaPlus, FaEdit, FaTrash, FaSearch } from 'react-icons/fa';
 
 const AdminServices = () => {
@@ -17,7 +17,7 @@ const AdminServices = () => {
     const loadServices = async () => {
         try {
             const res = await servicesAPI.getAllAdmin();
-            setServices(res.data.data);
+            setServices(res.data.data || []);
         } catch (err) { toast.error('Gagal memuat data'); }
         setLoading(false);
     };
@@ -46,11 +46,9 @@ const AdminServices = () => {
         }
         try {
             if (editMode) {
-                if (!window.confirm('Update layanan ini?')) return;
                 await servicesAPI.update(formData.id, formData);
                 toast.success('Layanan berhasil diupdate');
             } else {
-                if (!window.confirm('Tambah layanan baru?')) return;
                 await servicesAPI.create(formData);
                 toast.success('Layanan berhasil ditambahkan');
             }
@@ -60,7 +58,6 @@ const AdminServices = () => {
     };
 
     const handleDelete = async (id) => {
-        if (!window.confirm('Hapus layanan ini?')) return;
         try {
             await servicesAPI.delete(id);
             toast.success('Layanan berhasil dihapus');
@@ -69,7 +66,7 @@ const AdminServices = () => {
     };
 
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
-    const filtered = services.filter(s => s.service_name.toLowerCase().includes(search.toLowerCase()));
+    const filtered = services.filter(s => s.service_name?.toLowerCase().includes(search.toLowerCase()));
 
     return (
         <DashboardLayout title="Kelola Layanan">

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
-import { usersAPI } from '../../services/api.js';
+import { usersAPI } from '../../services/api';
 import { FaSearch, FaTrash } from 'react-icons/fa';
 
 const AdminUsers = () => {
@@ -14,14 +14,13 @@ const AdminUsers = () => {
     const loadUsers = async () => {
         try {
             const res = await usersAPI.getAll();
-            setUsers(res.data.data);
+            setUsers(res.data.data || []);
         } catch (err) { toast.error('Gagal memuat data'); }
         setLoading(false);
     };
 
     const handleDelete = async (id, role) => {
         if (role === 'admin') { toast.error('Tidak dapat menghapus admin'); return; }
-        if (!window.confirm('Hapus user ini?')) return;
         try {
             await usersAPI.delete(id);
             toast.success('User berhasil dihapus');
@@ -30,7 +29,7 @@ const AdminUsers = () => {
     };
 
     const formatDate = (date) => new Date(date).toLocaleDateString('id-ID');
-    const filtered = users.filter(u => u.full_name.toLowerCase().includes(search.toLowerCase()) || u.username.toLowerCase().includes(search.toLowerCase()));
+    const filtered = users.filter(u => u.full_name?.toLowerCase().includes(search.toLowerCase()) || u.username?.toLowerCase().includes(search.toLowerCase()));
 
     return (
         <DashboardLayout title="Kelola User">

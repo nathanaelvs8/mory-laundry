@@ -20,25 +20,29 @@ const Home = () => {
     const loadServices = async () => {
         try {
             const res = await servicesAPI.getAll();
-            setServices(res.data.data);
+            setServices(res.data.data || []);
         } catch (err) { console.error(err); }
     };
 
     const handleScroll = () => setScrolled(window.scrollY > 50);
-
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
 
-    const pricingData = [
-        { icon: '🧺', name: 'Cuci Kering', desc: 'Cuci + Kering', price: 22000, unit: 'per 5 kg' },
-        { icon: '👔', name: 'Cuci Kering Lipat', desc: 'Cuci + Kering + Lipat', price: 25000, unit: 'per 5 kg', featured: true },
-        { icon: '✨', name: 'Cuci Kering Setrika', desc: 'Cuci + Kering + Setrika', price: 40000, unit: 'per 5 kg' },
-        { icon: '👟', name: 'Sepatu', desc: 'Semua jenis sepatu', price: 25000, unit: 'per pasang' },
-        { icon: '🛏️', name: 'Bedcover Besar', desc: 'Ukuran King/Queen', price: 35000, unit: 'per pcs' },
-        { icon: '🛏️', name: 'Bedcover Kecil', desc: 'Ukuran Single', price: 25000, unit: 'per pcs' },
-        { icon: '🧸', name: 'Boneka Besar', desc: 'Ukuran > 50cm', price: 35000, unit: 'per pcs' },
-        { icon: '🧸', name: 'Boneka Kecil', desc: 'Ukuran < 50cm', price: 25000, unit: 'per pcs' },
-        { icon: '🏠', name: 'Karpet', desc: 'Per meter persegi', price: 15000, unit: 'per m²' },
-    ];
+    // Service images mapping
+    const serviceImages = {
+        'Cuci Kering Setrika': '/images/cuci-setrika.jpg',
+        'Cuci Kering Lipat': '/images/cuci-kering-lipat.jpg',
+        'Cuci Kering Saja': '/images/cuci-kering.jpg',
+        'Cuci Saja': '/images/cuci-standard.jpg',
+        'Setrika': '/images/setrika-saja.jpg',
+        'Sepatu': '/images/sepatu.jpg',
+        'Bedcover Besar': '/images/bedcover.png',
+        'Bedcover Kecil': '/images/bedcover-kecil.jpg',
+        'Boneka Besar': '/images/boneka.jpg',
+        'Boneka Kecil': '/images/boneka.jpg',
+        'Karpet': '/images/karpet.jpg'
+    };
+
+    const getServiceImage = (name) => serviceImages[name] || '/images/cuci-standard.jpg';
 
     return (
         <>
@@ -49,7 +53,7 @@ const Home = () => {
                     <ul className="navbar-menu">
                         <li><a href="#home">Beranda</a></li>
                         <li><a href="#services">Layanan</a></li>
-                        <li><a href="#pricing">Harga</a></li>
+                        <li><a href="#why-us">Keunggulan</a></li>
                         <li><a href="#contact">Kontak</a></li>
                     </ul>
                     <div className="navbar-auth">
@@ -85,35 +89,33 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Services */}
+            {/* Services - Dynamic from Database */}
             <section className="section" id="services" style={{background: 'var(--light)'}}>
                 <div className="section-container">
                     <div className="section-header">
-                        <span className="section-badge">Layanan Kami</span>
+                        <span className="section-badge">Layanan & Harga</span>
                         <h2 className="section-title">Pilihan Layanan Laundry Lengkap</h2>
-                        <p className="section-desc">Kami menyediakan berbagai layanan laundry untuk memenuhi kebutuhan Anda</p>
+                        <p className="section-desc">Harga transparan dan terjangkau untuk semua kebutuhan laundry Anda</p>
                     </div>
                     <div className="services-grid">
-                        {[
-                            { img: '/images/cuci-standard.jpg', name: 'Cuci Kering Lipat', desc: 'Paket lengkap cuci, kering, dan lipat rapi.', price: 25000, unit: '5 kg' },
-                            { img: '/images/cuci-setrika.jpg', name: 'Cuci Kering Setrika', desc: 'Paket premium dengan hasil setrika rapi.', price: 40000, unit: '5 kg' },
-                            { img: '/images/sepatu.jpg', name: 'Cuci Sepatu', desc: 'Cuci sepatu semua jenis hingga bersih.', price: 25000, unit: 'pasang' },
-                            { img: '/images/bedcover.png', name: 'Cuci Bedcover', desc: 'Bedcover bersih, wangi, dan bebas tungau.', price: 25000, unit: 'pcs' },
-                            { img: '/images/boneka.jpg', name: 'Cuci Boneka', desc: 'Boneka bersih, fluffy, dan aman.', price: 25000, unit: 'pcs' },
-                            { img: '/images/karpet.jpg', name: 'Cuci Karpet', desc: 'Karpet bersih dan segar kembali.', price: 15000, unit: 'm²' },
-                        ].map((s, i) => (
-                            <div className="service-card" key={i}>
-                                <div className="service-img"><img src={s.img} alt={s.name} /></div>
+                        {services.length > 0 ? services.map((s, i) => (
+                            <div className="service-card" key={s.id || i}>
+                                <div className="service-img"><img src={getServiceImage(s.service_name)} alt={s.service_name} /></div>
                                 <div className="service-body">
-                                    <h3 className="service-name">{s.name}</h3>
-                                    <p className="service-text">{s.desc}</p>
+                                    <h3 className="service-name">{s.service_name}</h3>
+                                    <p className="service-text">{s.description || 'Layanan laundry berkualitas'}</p>
                                     <div className="service-footer">
-                                        <div><span className="service-price">Rp {formatPrice(s.price)}</span><span className="service-unit">/ {s.unit}</span></div>
-                                        <a href={`https://wa.me/6281217607101?text=Halo,%20saya%20mau%20order%20${s.name}`} className="btn btn-primary btn-sm" target="_blank" rel="noreferrer">Order</a>
+                                        <div>
+                                            <span className="service-price">Rp {formatPrice(s.price)}</span>
+                                            <span className="service-unit">/ {s.unit}</span>
+                                        </div>
+                                        <a href={`https://wa.me/6281217607101?text=Halo,%20saya%20mau%20order%20${encodeURIComponent(s.service_name)}`} className="btn btn-primary btn-sm" target="_blank" rel="noreferrer">Order</a>
                                     </div>
                                 </div>
                             </div>
-                        ))}
+                        )) : (
+                            <p style={{textAlign: 'center', gridColumn: '1/-1', color: '#999'}}>Loading layanan...</p>
+                        )}
                     </div>
                 </div>
             </section>
@@ -122,86 +124,29 @@ const Home = () => {
             <section className="section" id="why-us" style={{background: '#fff'}}>
                 <div className="section-container">
                     <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 60, alignItems: 'center'}}>
-                        {/* Image Side */}
                         <div style={{position: 'relative'}}>
-                            <div style={{
-                                borderRadius: 20,
-                                overflow: 'hidden',
-                                boxShadow: '0 25px 50px rgba(0,0,0,0.15)',
-                                position: 'relative'
-                            }}>
-                                <img 
-                                    src="/images/staff.jpg" 
-                                    alt="Staff Mory Laundry" 
-                                    style={{
-                                        width: '100%',
-                                        height: 450,
-                                        objectFit: 'cover',
-                                        display: 'block'
-                                    }}
-                                />
-                                {/* Overlay Badge */}
-                                <div style={{
-                                    position: 'absolute',
-                                    bottom: 20,
-                                    left: 20,
-                                    background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
-                                    color: '#fff',
-                                    padding: '15px 25px',
-                                    borderRadius: 12,
-                                    fontWeight: 600,
-                                    boxShadow: '0 10px 30px rgba(201,162,39,0.4)'
-                                }}>
+                            <div style={{borderRadius: 20, overflow: 'hidden', boxShadow: '0 25px 50px rgba(0,0,0,0.15)'}}>
+                                <img src="/images/staff.jpg" alt="Staff Mory Laundry" style={{width: '100%', height: 450, objectFit: 'cover', display: 'block'}} />
+                                <div style={{position: 'absolute', bottom: 20, left: 20, background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', color: '#fff', padding: '15px 25px', borderRadius: 12, fontWeight: 600, boxShadow: '0 10px 30px rgba(201,162,39,0.4)'}}>
                                     <div style={{fontSize: 24, fontWeight: 700}}>5+ Tahun</div>
                                     <div style={{fontSize: 14, opacity: 0.9}}>Pengalaman Melayani</div>
                                 </div>
                             </div>
                         </div>
-
-                        {/* Content Side */}
                         <div>
                             <span className="section-badge" style={{marginBottom: 15, display: 'inline-block'}}>Mengapa Pilih Kami</span>
-                            <h2 style={{fontSize: 36, fontWeight: 700, marginBottom: 20, color: 'var(--dark)'}}>
-                                Layanan Laundry Terpercaya untuk Keluarga Anda
-                            </h2>
-                            <p style={{color: 'var(--gray)', marginBottom: 30, lineHeight: 1.8}}>
-                                Kami berkomitmen memberikan layanan laundry terbaik dengan hasil yang memuaskan. 
-                                Tim profesional kami siap melayani dengan sepenuh hati.
-                            </p>
-
+                            <h2 style={{fontSize: 36, fontWeight: 700, marginBottom: 20, color: 'var(--dark)'}}>Layanan Laundry Terpercaya</h2>
+                            <p style={{color: 'var(--gray)', marginBottom: 30, lineHeight: 1.8}}>Kami berkomitmen memberikan layanan laundry terbaik dengan hasil yang memuaskan.</p>
                             <div style={{display: 'grid', gap: 20}}>
                                 {[
-                                    { icon: <FaMedal />, title: 'Kualitas Terjamin', desc: 'Hasil cucian bersih, wangi, dan rapi setiap saat' },
-                                    { icon: <FaBolt />, title: 'Proses Cepat', desc: 'Layanan express 1 hari selesai untuk kebutuhan mendesak' },
+                                    { icon: <FaMedal />, title: 'Kualitas Terjamin', desc: 'Hasil cucian bersih, wangi, dan rapi' },
+                                    { icon: <FaBolt />, title: 'Proses Cepat', desc: 'Layanan express 1 hari selesai' },
                                     { icon: <FaTags />, title: 'Harga Terjangkau', desc: 'Harga bersaing dengan kualitas premium' },
-                                    { icon: <FaHeadset />, title: 'Layanan 24/7', desc: 'Customer service siap membantu kapan saja' },
+                                    { icon: <FaHeadset />, title: 'Layanan 24/7', desc: 'Customer service siap membantu' },
                                 ].map((item, i) => (
-                                    <div key={i} style={{
-                                        display: 'flex',
-                                        gap: 15,
-                                        padding: 20,
-                                        background: 'var(--light)',
-                                        borderRadius: 12,
-                                        transition: 'all 0.3s ease'
-                                    }}>
-                                        <div style={{
-                                            width: 50,
-                                            height: 50,
-                                            background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
-                                            borderRadius: 12,
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            color: '#fff',
-                                            fontSize: 20,
-                                            flexShrink: 0
-                                        }}>
-                                            {item.icon}
-                                        </div>
-                                        <div>
-                                            <h4 style={{marginBottom: 5, color: 'var(--dark)'}}>{item.title}</h4>
-                                            <p style={{color: 'var(--gray)', fontSize: 14, margin: 0}}>{item.desc}</p>
-                                        </div>
+                                    <div key={i} style={{display: 'flex', gap: 15, padding: 20, background: 'var(--light)', borderRadius: 12}}>
+                                        <div style={{width: 50, height: 50, background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'center', color: '#fff', fontSize: 20, flexShrink: 0}}>{item.icon}</div>
+                                        <div><h4 style={{marginBottom: 5, color: 'var(--dark)'}}>{item.title}</h4><p style={{color: 'var(--gray)', fontSize: 14, margin: 0}}>{item.desc}</p></div>
                                     </div>
                                 ))}
                             </div>
@@ -210,134 +155,20 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Pricing */}
-            <section className="section" id="pricing" style={{background: 'var(--light)'}}>
-                <div className="section-container">
-                    <div className="section-header">
-                        <span className="section-badge">Daftar Harga</span>
-                        <h2 className="section-title">Harga Transparan & Terjangkau</h2>
-                    </div>
-                    <div className="pricing-grid">
-                        {pricingData.map((p, i) => (
-                            <div className={`pricing-card ${p.featured ? 'featured' : ''}`} key={i}>
-                                <div className="pricing-icon">{p.icon}</div>
-                                <h3 className="pricing-name">{p.name}</h3>
-                                <p className="pricing-desc">{p.desc}</p>
-                                <div className="pricing-amount">Rp {formatPrice(p.price)}</div>
-                                <span className="pricing-unit">{p.unit}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </section>
-
-            {/* CTA - With Background Image */}
-            <section style={{
-                position: 'relative',
-                padding: '100px 0',
-                overflow: 'hidden'
-            }}>
-                {/* Background Image */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    backgroundImage: 'url(/images/cta.jpg)',
-                    backgroundSize: 'cover',
-                    backgroundPosition: 'center',
-                    zIndex: 0
-                }}></div>
-                
-                {/* Overlay */}
-                <div style={{
-                    position: 'absolute',
-                    top: 0,
-                    left: 0,
-                    right: 0,
-                    bottom: 0,
-                    background: 'linear-gradient(135deg, rgba(201,162,39,0.95) 0%, rgba(184,148,31,0.9) 100%)',
-                    zIndex: 1
-                }}></div>
-
-                {/* Content */}
+            {/* CTA */}
+            <section style={{position: 'relative', padding: '100px 0', overflow: 'hidden'}}>
+                <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundImage: 'url(/images/cta.jpg)', backgroundSize: 'cover', backgroundPosition: 'center'}}></div>
+                <div style={{position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.6), rgba(0,0,0,0.7))'}}></div>
                 <div className="section-container" style={{position: 'relative', zIndex: 2, textAlign: 'center'}}>
-                    <h2 style={{
-                        fontSize: 42,
-                        fontWeight: 700,
-                        color: '#fff',
-                        marginBottom: 20,
-                        textShadow: '0 2px 10px rgba(0,0,0,0.2)'
-                    }}>
-                        Siap Mencuci Pakaian Anda?
-                    </h2>
-                    <p style={{
-                        fontSize: 18,
-                        color: 'rgba(255,255,255,0.9)',
-                        marginBottom: 40,
-                        maxWidth: 600,
-                        marginLeft: 'auto',
-                        marginRight: 'auto'
-                    }}>
-                        Hubungi kami sekarang dan rasakan kemudahan layanan laundry premium dengan hasil yang memuaskan!
-                    </p>
+                    <h2 style={{fontSize: 42, fontWeight: 700, color: '#fff', marginBottom: 20}}>Siap Mencuci Pakaian Anda?</h2>
+                    <p style={{fontSize: 18, color: 'rgba(255,255,255,0.9)', marginBottom: 40, maxWidth: 600, margin: '0 auto 40px'}}>Hubungi kami sekarang dan rasakan kemudahan layanan laundry premium!</p>
                     <div style={{display: 'flex', gap: 20, justifyContent: 'center', flexWrap: 'wrap'}}>
-                        <a 
-                            href="https://wa.me/6281217607101" 
-                            className="btn" 
-                            target="_blank" 
-                            rel="noreferrer"
-                            style={{
-                                background: '#25D366',
-                                color: '#fff',
-                                padding: '15px 35px',
-                                fontSize: 16,
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 10,
-                                boxShadow: '0 10px 30px rgba(37,211,102,0.4)'
-                            }}
-                        >
-                            <FaWhatsapp size={20} /> Chat WhatsApp
-                        </a>
-                        <Link 
-                            to="/signup" 
-                            className="btn"
-                            style={{
-                                background: '#fff',
-                                color: 'var(--gold-dark)',
-                                padding: '15px 35px',
-                                fontSize: 16,
-                                boxShadow: '0 10px 30px rgba(0,0,0,0.2)'
-                            }}
-                        >
-                            Daftar Sekarang
-                        </Link>
+                        <a href="https://wa.me/6281217607101" className="btn" target="_blank" rel="noreferrer" style={{background: '#25D366', color: '#fff', padding: '15px 35px', fontSize: 16, display: 'flex', alignItems: 'center', gap: 10}}><FaWhatsapp size={20} /> Chat WhatsApp</a>
+                        <Link to="/signup" className="btn" style={{background: '#fff', color: 'var(--gold-dark)', padding: '15px 35px', fontSize: 16}}>Daftar Sekarang</Link>
                     </div>
-
-                    {/* Trust Badges */}
-                    <div style={{
-                        display: 'flex',
-                        justifyContent: 'center',
-                        gap: 40,
-                        marginTop: 50,
-                        flexWrap: 'wrap'
-                    }}>
-                        {[
-                            'Gratis Antar Jemput',
-                            'Garansi Cucian Bersih',
-                            'Pembayaran Mudah'
-                        ].map((item, i) => (
-                            <div key={i} style={{
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: 8,
-                                color: '#fff'
-                            }}>
-                                <FaCheckCircle />
-                                <span>{item}</span>
-                            </div>
+                    <div style={{display: 'flex', justifyContent: 'center', gap: 40, marginTop: 50, flexWrap: 'wrap'}}>
+                        {['Gratis Antar Jemput', 'Garansi Cucian Bersih', 'Pembayaran Mudah'].map((item, i) => (
+                            <div key={i} style={{display: 'flex', alignItems: 'center', gap: 8, color: '#fff'}}><FaCheckCircle /><span>{item}</span></div>
                         ))}
                     </div>
                 </div>
@@ -376,7 +207,7 @@ const Home = () => {
                     <div className="footer-grid">
                         <div className="footer-brand">
                             <img src="/images/logo.png" alt="Mory Laundry" style={{height: 50}} />
-                            <p>Mory Laundry adalah layanan laundry premium yang berkomitmen memberikan hasil terbaik untuk pakaian Anda.</p>
+                            <p>Mory Laundry adalah layanan laundry premium yang berkomitmen memberikan hasil terbaik.</p>
                             <div className="footer-social">
                                 <a href="#"><FaFacebook /></a>
                                 <a href="#"><FaInstagram /></a>
@@ -396,7 +227,7 @@ const Home = () => {
                             <h4 className="footer-title">Link Cepat</h4>
                             <ul className="footer-links">
                                 <li><a href="#home">Beranda</a></li>
-                                <li><a href="#pricing">Harga</a></li>
+                                <li><a href="#services">Layanan</a></li>
                                 <li><Link to="/login">Login</Link></li>
                                 <li><Link to="/signup">Daftar</Link></li>
                             </ul>
@@ -411,7 +242,6 @@ const Home = () => {
                     </div>
                     <div className="footer-bottom">
                         <p className="footer-copy">&copy; 2025 Mory Laundry. All rights reserved.</p>
-                        <p style={{color: 'rgba(255,255,255,.5)', fontSize: 14}}>Made for UAS AWP</p>
                     </div>
                 </div>
             </footer>

@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
-import { ordersAPI } from '../../services/api.js';
-import { FaPlus, FaSearch, FaEye } from 'react-icons/fa';
+import { ordersAPI } from '../../services/api';
+import { FaPlus, FaEye, FaSearch } from 'react-icons/fa';
 
 const CustomerOrders = () => {
     const [orders, setOrders] = useState([]);
@@ -16,7 +15,7 @@ const CustomerOrders = () => {
         try {
             const res = await ordersAPI.getMyOrders();
             setOrders(res.data.data);
-        } catch (err) { toast.error('Gagal memuat data'); }
+        } catch (err) { console.error(err); }
         setLoading(false);
     };
 
@@ -29,31 +28,52 @@ const CustomerOrders = () => {
         return 'proses';
     };
 
-    const filtered = orders.filter(o => o.order_number.toLowerCase().includes(search.toLowerCase()));
+    const filteredOrders = orders.filter(o => 
+        o.order_number.toLowerCase().includes(search.toLowerCase())
+    );
 
     return (
         <DashboardLayout title="Riwayat Pesanan">
-            <div style={{marginBottom: 20}}>
-                <Link to="/customer/orders/new" className="btn btn-primary"><FaPlus /> Buat Pesanan Baru</Link>
-            </div>
+            <Link to="/customer/orders/new" className="btn btn-primary" style={{marginBottom: 25, display: 'inline-flex', alignItems: 'center', gap: 8}}>
+                <FaPlus /> Buat Pesanan Baru
+            </Link>
 
             <div className="table-container">
                 <div className="table-header">
                     <h3 className="table-title">Riwayat Pesanan</h3>
-                    <div className="search-box"><FaSearch /><input type="text" placeholder="Cari pesanan..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+                    <div className="search-box">
+                        <FaSearch />
+                        <input type="text" placeholder="Cari pesanan..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                    </div>
                 </div>
                 <table>
-                    <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <thead>
+                        <tr>
+                            <th>No. Order</th>
+                            <th>Tanggal</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th style={{width: 120}}>Aksi</th>
+                        </tr>
+                    </thead>
                     <tbody>
-                        {loading ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                        : filtered.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan</td></tr>
-                        : filtered.map(order => (
-                            <tr key={order.id}>
-                                <td><strong>{order.order_number}</strong></td>
-                                <td>{formatDate(order.entry_date)}</td>
-                                <td>Rp {formatPrice(order.total_price)}</td>
-                                <td><span className={`status-badge ${getStatusClass(order.status)}`}>{order.status}</span></td>
-                                <td><Link to={`/customer/orders/${order.id}`} className="action-btn edit"><FaEye /> Detail</Link></td>
+                        {loading ? (
+                            <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
+                        ) : filteredOrders.length === 0 ? (
+                            <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>
+                                {search ? 'Pesanan tidak ditemukan' : 'Belum ada pesanan'}
+                            </td></tr>
+                        ) : filteredOrders.map(o => (
+                            <tr key={o.id}>
+                                <td><strong>{o.order_number}</strong></td>
+                                <td>{formatDate(o.entry_date)}</td>
+                                <td>Rp {formatPrice(o.total_price)}</td>
+                                <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
+                                <td>
+                                    <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 15px'}}>
+                                        <FaEye /> Detail
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                     </tbody>

@@ -51,6 +51,7 @@ export const servicesAPI = {
 export const ordersAPI = {
   getAll: (params) => api.get('/orders', { params }),
   getMyOrders: () => api.get('/orders/my-orders'),
+  getById: (id) => api.get(`/orders/${id}`),
   getOne: (id) => api.get(`/orders/${id}`),
   create: (data) => api.post('/orders', data),
   updateStatus: (id, status) => api.put(`/orders/${id}/status`, { status }),
@@ -58,17 +59,17 @@ export const ordersAPI = {
   getMyStats: () => api.get('/orders/my-stats')
 };
 
-// Reports API
-export const reportsAPI = {
-  getTransactions: (params) => api.get('/orders', { params }),
-  getStats: () => api.get('/orders/stats')
-};
-
 // Users API
 export const usersAPI = {
   getAll: (params) => api.get('/users', { params }),
   getOne: (id) => api.get(`/users/${id}`),
   delete: (id) => api.delete(`/users/${id}`)
+};
+
+// Reports API
+export const reportsAPI = {
+  getTransactions: (params) => api.get('/orders', { params }),
+  getStats: () => api.get('/orders/stats')
 };
 
 export default api;

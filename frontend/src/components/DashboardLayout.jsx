@@ -24,7 +24,7 @@ const DashboardLayout = ({ children, title }) => {
 
     const customerMenu = [
         { path: '/customer/dashboard', icon: <FaTachometerAlt />, label: 'Dashboard' },
-        { path: '/customer/new-order', icon: <FaPlusCircle />, label: 'Buat Pesanan' },
+        { path: '/customer/orders/new', icon: <FaPlusCircle />, label: 'Buat Pesanan' },
         { path: '/customer/orders', icon: <FaHistory />, label: 'Riwayat Pesanan' },
         { path: '/customer/profile', icon: <FaUser />, label: 'Profil Saya' },
     ];

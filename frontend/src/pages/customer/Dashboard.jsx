@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
-import { ordersAPI } from '../../services/api.js';
+import { ordersAPI } from '../../services/api';
 import { FaShoppingCart, FaClock, FaCheckCircle, FaPlus, FaWhatsapp, FaEye } from 'react-icons/fa';
 
 const CustomerDashboard = () => {
@@ -42,17 +42,17 @@ const CustomerDashboard = () => {
                 <div className="stat-card"><div className="stat-icon green"><FaCheckCircle /></div><div><div className="stat-value">{stats.completed}</div><div className="stat-label">Pesanan Selesai</div></div></div>
             </div>
 
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 20, marginBottom: 30}}>
-                <Link to="/customer/orders/new" style={{textDecoration: 'none'}}>
-                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 30, color: 'white', display: 'flex', alignItems: 'center', gap: 20, transition: 'transform .3s'}}>
-                        <div style={{width: 60, height: 60, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24}}><FaPlus /></div>
-                        <div><h3 style={{margin: '0 0 5px', fontSize: 20}}>Buat Pesanan Baru</h3><p style={{margin: 0, opacity: .9, fontSize: 14}}>Pesan layanan laundry sekarang</p></div>
+            <div style={{display: 'flex', gap: 20, marginBottom: 30, flexWrap: 'wrap'}}>
+                <Link to="/customer/orders/new" style={{textDecoration: 'none', flex: '1 1 300px'}}>
+                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 25, color: 'white', display: 'flex', alignItems: 'center', gap: 20, transition: 'transform .3s', height: '100%', boxSizing: 'border-box'}}>
+                        <div style={{width: 55, height: 55, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0}}><FaPlus /></div>
+                        <div><h3 style={{margin: '0 0 5px', fontSize: 18}}>Buat Pesanan Baru</h3><p style={{margin: 0, opacity: .9, fontSize: 13}}>Pesan layanan laundry sekarang</p></div>
                     </div>
                 </Link>
-                <a href="https://wa.me/6281383369984" target="_blank" rel="noreferrer" style={{textDecoration: 'none'}}>
-                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 30, color: 'white', display: 'flex', alignItems: 'center', gap: 20}}>
-                        <div style={{width: 60, height: 60, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 24}}><FaWhatsapp /></div>
-                        <div><h3 style={{margin: '0 0 5px', fontSize: 20}}>Hubungi Kami</h3><p style={{margin: 0, opacity: .9, fontSize: 14}}>Chat via WhatsApp</p></div>
+                <a href="https://wa.me/6281217607101" target="_blank" rel="noreferrer" style={{textDecoration: 'none', flex: '1 1 300px'}}>
+                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 25, color: 'white', display: 'flex', alignItems: 'center', gap: 20, height: '100%', boxSizing: 'border-box'}}>
+                        <div style={{width: 55, height: 55, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0}}><FaWhatsapp /></div>
+                        <div><h3 style={{margin: '0 0 5px', fontSize: 18}}>Hubungi Kami</h3><p style={{margin: 0, opacity: .9, fontSize: 13}}>Chat via WhatsApp</p></div>
                     </div>
                 </a>
             </div>
@@ -60,7 +60,7 @@ const CustomerDashboard = () => {
             <div className="table-container">
                 <div className="table-header"><h3 className="table-title">Pesanan Terbaru</h3><Link to="/customer/orders" className="btn btn-primary btn-sm">Lihat Semua</Link></div>
                 <table>
-                    <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th style={{width: 120}}>Aksi</th></tr></thead>
                     <tbody>
                         {loading ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
                         : recentOrders.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan. <Link to="/customer/orders/new" style={{color: 'var(--gold)'}}>Buat pesanan pertama!</Link></td></tr>
@@ -70,7 +70,11 @@ const CustomerDashboard = () => {
                                 <td>{formatDate(o.entry_date)}</td>
                                 <td>Rp {formatPrice(o.total_price)}</td>
                                 <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
-                                <td><Link to={`/customer/orders/${o.id}`} className="action-btn edit"><FaEye /> Detail</Link></td>
+                                <td>
+                                    <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 15px'}}>
+                                        <FaEye /> Detail
+                                    </Link>
+                                </td>
                             </tr>
                         ))}
                     </tbody>
