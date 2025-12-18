@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
+import ConfirmModal from '../../components/ConfirmModal.jsx';
 import { useAuth } from '../../context/AuthContext';
 import { servicesAPI, ordersAPI } from '../../services/api';
 import { FaPlus, FaTrash, FaCheck, FaArrowLeft } from 'react-icons/fa';
@@ -16,233 +17,119 @@ const CustomerNewOrder = () => {
     const [orderItems, setOrderItems] = useState([]);
     const [selectedService, setSelectedService] = useState('');
     const [quantity, setQuantity] = useState('');
+    const [confirmModal, setConfirmModal] = useState(false);
 
     useEffect(() => { loadServices(); }, []);
 
     const loadServices = async () => {
         try {
             const res = await servicesAPI.getAll();
-            setServices(res.data.data);
+            setServices(res.data.data || []);
         } catch (err) { toast.error('Gagal memuat layanan'); }
         setLoading(false);
     };
 
-    // Get selected service object
-    const getSelectedServiceObj = () => {
-        return services.find(s => s.id === parseInt(selectedService));
-    };
-
-    // Get unit label for display
-    const getUnitLabel = (unit) => {
-        const labels = {
-            'kg': 'Kilogram (kg)',
-            'pcs': 'Pieces (pcs)',
-            'pasang': 'Pasang',
-            'm²': 'Meter persegi (m²)',
-            'm2': 'Meter persegi (m²)'
-        };
-        return labels[unit] || unit;
-    };
-
-    // Get step value based on unit
-    const getStepValue = (unit) => {
-        if (unit === 'kg') return '0.1';
-        return '1';
-    };
-
-    // Get min value based on unit
-    const getMinValue = (unit) => {
-        if (unit === 'kg') return '0.1';
-        return '1';
-    };
+    const getSelectedServiceObj = () => services.find(s => s.id === parseInt(selectedService));
+    const getUnitLabel = (unit) => ({ 'kg': 'Kilogram (kg)', 'pcs': 'Pieces (pcs)', 'pasang': 'Pasang', 'm²': 'Meter persegi (m²)' }[unit] || unit);
+    const getStepValue = (unit) => unit === 'kg' ? '0.1' : '1';
+    const getMinValue = (unit) => unit === 'kg' ? '0.1' : '1';
 
     const handleAddItem = () => {
-        if (!selectedService || !quantity || parseFloat(quantity) <= 0) {
-            toast.error('Pilih layanan dan masukkan jumlah'); return;
-        }
+        if (!selectedService || !quantity || parseFloat(quantity) <= 0) { toast.error('Pilih layanan dan masukkan jumlah'); return; }
         const service = getSelectedServiceObj();
         if (!service) return;
-
-        // Check if service already added
-        const existingIndex = orderItems.findIndex(item => item.service_id === service.id);
-        if (existingIndex >= 0) {
-            toast.error('Layanan sudah ditambahkan. Hapus dulu jika ingin mengubah.');
-            return;
-        }
-
+        if (orderItems.find(item => item.service_id === service.id)) { toast.error('Layanan sudah ditambahkan'); return; }
         const qty = parseFloat(quantity);
-        const subtotal = parseFloat(service.price) * qty;
-        setOrderItems([...orderItems, {
-            service_id: service.id,
-            service_name: service.service_name,
-            unit: service.unit,
-            price: parseFloat(service.price),
-            quantity: qty,
-            subtotal
-        }]);
-        setSelectedService('');
-        setQuantity('');
+        setOrderItems([...orderItems, { service_id: service.id, service_name: service.service_name, unit: service.unit, price: parseFloat(service.price), quantity: qty, subtotal: service.price * qty }]);
+        setSelectedService(''); setQuantity('');
         toast.success('Layanan ditambahkan');
     };
 
-    const handleRemoveItem = (index) => {
-        setOrderItems(orderItems.filter((_, i) => i !== index));
-        toast.success('Layanan dihapus');
-    };
-
+    const handleRemoveItem = (index) => { setOrderItems(orderItems.filter((_, i) => i !== index)); };
     const getTotalPrice = () => orderItems.reduce((sum, item) => sum + item.subtotal, 0);
 
-    const handleSubmit = async (e) => {
+    const handleSubmitClick = (e) => {
         e.preventDefault();
-        if (!formData.customer_name || !formData.phone_number) {
-            toast.error('Nama dan No. HP wajib diisi'); return;
-        }
-        if (orderItems.length === 0) {
-            toast.error('Tambahkan minimal satu layanan'); return;
-        }
+        if (!formData.customer_name || !formData.phone_number) { toast.error('Nama dan No. HP wajib diisi'); return; }
+        if (orderItems.length === 0) { toast.error('Tambahkan minimal satu layanan'); return; }
+        setConfirmModal(true);
+    };
 
+    const handleConfirmSubmit = async () => {
         setSubmitting(true);
         try {
-            const res = await ordersAPI.create({
-                customer_name: formData.customer_name,
-                phone_number: formData.phone_number,
-                notes: formData.notes,
-                items: orderItems
-            });
+            const res = await ordersAPI.create({ customer_name: formData.customer_name, phone_number: formData.phone_number, notes: formData.notes, items: orderItems });
             toast.success(res.data.message || 'Pesanan berhasil dibuat!');
             navigate(`/customer/orders/${res.data.data.id}`);
-        } catch (err) {
-            toast.error(err.response?.data?.message || 'Gagal membuat pesanan');
-        }
+        } catch (err) { toast.error(err.response?.data?.message || 'Gagal membuat pesanan'); }
         setSubmitting(false);
     };
 
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
-
     const selectedServiceObj = getSelectedServiceObj();
 
     return (
         <DashboardLayout title="Buat Pesanan Baru">
             <div className="table-container" style={{padding: 30}}>
-                <form onSubmit={handleSubmit}>
-                    {/* Info Pelanggan */}
-                    <h4 style={{marginBottom: 20, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)'}}>
-                        📋 Info Pelanggan
-                    </h4>
+                <form onSubmit={handleSubmitClick}>
+                    <h4 style={{marginBottom: 20, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)'}}>📋 Info Pelanggan</h4>
                     <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: 20, marginBottom: 30}}>
                         <div className="form-group" style={{margin: 0}}>
                             <label className="form-label">Nama Pelanggan *</label>
-                            <input type="text" className="form-control" value={formData.customer_name} onChange={(e) => setFormData({...formData, customer_name: e.target.value})} required placeholder="Masukkan nama lengkap" />
+                            <input type="text" className="form-control" value={formData.customer_name} onChange={(e) => setFormData({...formData, customer_name: e.target.value})} required />
                         </div>
                         <div className="form-group" style={{margin: 0}}>
                             <label className="form-label">Nomor HP *</label>
-                            <input type="tel" className="form-control" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} required placeholder="Contoh: 081234567890" />
+                            <input type="tel" className="form-control" value={formData.phone_number} onChange={(e) => setFormData({...formData, phone_number: e.target.value})} required />
                         </div>
                     </div>
 
-                    {/* Pilih Layanan */}
-                    <h4 style={{marginBottom: 20, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)'}}>
-                        🧺 Pilih Layanan
-                    </h4>
-                    <div style={{display: 'grid', gridTemplateColumns: '1fr 200px auto', gap: 15, alignItems: 'end', marginBottom: 10}}>
+                    <h4 style={{marginBottom: 20, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)'}}>🧺 Pilih Layanan</h4>
+                    <div style={{display: 'grid', gridTemplateColumns: '1fr 150px auto', gap: 15, alignItems: 'end', marginBottom: 20}}>
                         <div className="form-group" style={{margin: 0}}>
                             <label className="form-label">Layanan</label>
                             <select className="form-control" value={selectedService} onChange={(e) => { setSelectedService(e.target.value); setQuantity(''); }}>
                                 <option value="">-- Pilih Layanan --</option>
-                                {services.map(s => (
-                                    <option key={s.id} value={s.id}>
-                                        {s.service_name} - Rp {formatPrice(s.price)}/{s.unit}
-                                    </option>
-                                ))}
+                                {services.map(s => <option key={s.id} value={s.id}>{s.service_name} - Rp {formatPrice(s.price)}/{s.unit}</option>)}
                             </select>
                         </div>
                         <div className="form-group" style={{margin: 0}}>
-                            <label className="form-label">
-                                Jumlah {selectedServiceObj ? `(${getUnitLabel(selectedServiceObj.unit)})` : ''}
-                            </label>
-                            <input 
-                                type="number" 
-                                className="form-control" 
-                                value={quantity} 
-                                onChange={(e) => setQuantity(e.target.value)} 
-                                step={selectedServiceObj ? getStepValue(selectedServiceObj.unit) : '1'}
-                                min={selectedServiceObj ? getMinValue(selectedServiceObj.unit) : '1'}
-                                placeholder={selectedServiceObj ? `Masukkan ${selectedServiceObj.unit}` : '0'} 
-                                disabled={!selectedService}
-                            />
+                            <label className="form-label">Jumlah {selectedServiceObj ? `(${selectedServiceObj.unit})` : ''}</label>
+                            <input type="number" className="form-control" value={quantity} onChange={(e) => setQuantity(e.target.value)} step={selectedServiceObj ? getStepValue(selectedServiceObj.unit) : '1'} min={selectedServiceObj ? getMinValue(selectedServiceObj.unit) : '1'} disabled={!selectedService} />
                         </div>
-                        <button type="button" className="btn btn-primary" onClick={handleAddItem} disabled={!selectedService || !quantity} style={{height: 48}}>
-                            <FaPlus /> Tambah
-                        </button>
+                        <button type="button" className="btn btn-primary" onClick={handleAddItem} disabled={!selectedService || !quantity} style={{height: 48}}><FaPlus /> Tambah</button>
                     </div>
 
-                    {/* Info satuan */}
-                    {selectedServiceObj && (
-                        <p style={{color: '#666', fontSize: 13, marginBottom: 20, padding: '10px 15px', background: '#f9f9f9', borderRadius: 8}}>
-                            💡 Satuan untuk <strong>{selectedServiceObj.service_name}</strong>: <strong>{getUnitLabel(selectedServiceObj.unit)}</strong> 
-                            {selectedServiceObj.unit === 'kg' && ' - Bisa desimal (contoh: 2.5 kg)'}
-                            {selectedServiceObj.unit === 'pcs' && ' - Hanya angka bulat'}
-                            {selectedServiceObj.unit === 'pasang' && ' - Hanya angka bulat'}
-                            {selectedServiceObj.unit === 'm²' && ' - Bisa desimal'}
-                        </p>
-                    )}
-
-                    {/* Tabel Item */}
                     <table style={{marginBottom: 20}}>
-                        <thead>
-                            <tr>
-                                <th>Layanan</th>
-                                <th style={{textAlign: 'center', width: 150}}>Jumlah</th>
-                                <th style={{textAlign: 'right', width: 150}}>Harga</th>
-                                <th style={{textAlign: 'right', width: 150}}>Subtotal</th>
-                                <th style={{width: 60}}></th>
-                            </tr>
-                        </thead>
+                        <thead><tr><th>Layanan</th><th style={{textAlign: 'center'}}>Jumlah</th><th style={{textAlign: 'right'}}>Harga</th><th style={{textAlign: 'right'}}>Subtotal</th><th style={{width: 60}}></th></tr></thead>
                         <tbody>
-                            {orderItems.length === 0 ? (
-                                <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>
-                                    Belum ada layanan dipilih. Silakan pilih layanan di atas.
-                                </td></tr>
-                            ) : orderItems.map((item, index) => (
+                            {orderItems.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada layanan dipilih</td></tr>
+                            : orderItems.map((item, index) => (
                                 <tr key={index}>
                                     <td><strong>{item.service_name}</strong></td>
                                     <td style={{textAlign: 'center'}}>{item.quantity} {item.unit}</td>
                                     <td style={{textAlign: 'right'}}>Rp {formatPrice(item.price)}/{item.unit}</td>
                                     <td style={{textAlign: 'right', fontWeight: 600}}>Rp {formatPrice(item.subtotal)}</td>
-                                    <td>
-                                        <button type="button" className="btn btn-sm" onClick={() => handleRemoveItem(index)} style={{background: '#fee', color: '#d00', padding: '8px 12px'}}>
-                                            <FaTrash />
-                                        </button>
-                                    </td>
+                                    <td><button type="button" className="btn btn-sm" onClick={() => handleRemoveItem(index)} style={{background: '#fee', color: '#d00', padding: '8px 12px'}}><FaTrash /></button></td>
                                 </tr>
                             ))}
                         </tbody>
-                        <tfoot>
-                            <tr style={{background: '#f9f9f9'}}>
-                                <td colSpan="3" style={{textAlign: 'right', fontWeight: 'bold', fontSize: 18, padding: 15}}>TOTAL</td>
-                                <td style={{textAlign: 'right', fontWeight: 'bold', fontSize: 20, color: 'var(--gold)', padding: 15}}>Rp {formatPrice(getTotalPrice())}</td>
-                                <td></td>
-                            </tr>
-                        </tfoot>
+                        <tfoot><tr style={{background: '#f9f9f9'}}><td colSpan="3" style={{textAlign: 'right', fontWeight: 'bold', fontSize: 18, padding: 15}}>TOTAL</td><td style={{textAlign: 'right', fontWeight: 'bold', fontSize: 20, color: 'var(--gold)', padding: 15}}>Rp {formatPrice(getTotalPrice())}</td><td></td></tr></tfoot>
                     </table>
 
-                    {/* Catatan */}
                     <div className="form-group">
-                        <label className="form-label">Catatan (Opsional)</label>
-                        <textarea className="form-control" rows="3" value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} placeholder="Tambahkan catatan khusus jika ada... (contoh: ambil setelah jam 5 sore)"></textarea>
+                        <label className="form-label">Alamat</label>
+                        <textarea className="form-control" rows="3" value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} placeholder="Tambahkan alamat"></textarea>
                     </div>
 
-                    {/* Tombol */}
                     <div style={{display: 'flex', gap: 15, marginTop: 25}}>
-                        <button type="button" className="btn btn-secondary" onClick={() => navigate('/customer/dashboard')}>
-                            <FaArrowLeft /> Batal
-                        </button>
-                        <button type="submit" className="btn btn-primary" disabled={submitting || orderItems.length === 0} style={{flex: 1}}>
-                            <FaCheck /> {submitting ? 'Memproses...' : `Buat Pesanan (Rp ${formatPrice(getTotalPrice())})`}
-                        </button>
+                        <button type="button" className="btn btn-secondary" onClick={() => navigate('/customer/dashboard')}><FaArrowLeft /> Batal</button>
+                        <button type="submit" className="btn btn-primary" disabled={submitting || orderItems.length === 0} style={{flex: 1}}><FaCheck /> {submitting ? 'Memproses...' : `Buat Pesanan (Rp ${formatPrice(getTotalPrice())})`}</button>
                     </div>
                 </form>
             </div>
+
+            <ConfirmModal isOpen={confirmModal} onClose={() => setConfirmModal(false)} onConfirm={handleConfirmSubmit} title="Buat Pesanan?" message={`Total pesanan: Rp ${formatPrice(getTotalPrice())}. Lanjutkan membuat pesanan?`} type="warning" />
         </DashboardLayout>
     );
 };

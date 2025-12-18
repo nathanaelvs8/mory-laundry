@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { servicesAPI } from '../services/api';
-import { FaCrown, FaWhatsapp, FaMapMarkerAlt, FaClock, FaMedal, FaBolt, FaTags, FaHeadset, FaFacebook, FaInstagram, FaCheckCircle } from 'react-icons/fa';
+import { FaCrown, FaWhatsapp, FaMapMarkerAlt, FaClock, FaMedal, FaBolt, FaTags, FaHeadset, FaFacebook, FaInstagram, FaCheckCircle, FaBars, FaTimes } from 'react-icons/fa';
 
 const Home = () => {
     const { user } = useAuth();
@@ -10,6 +10,7 @@ const Home = () => {
     const isAdmin = user?.role === 'admin';
     const [services, setServices] = useState([]);
     const [scrolled, setScrolled] = useState(false);
+    const [menuOpen, setMenuOpen] = useState(false);
 
     useEffect(() => {
         loadServices();
@@ -27,16 +28,28 @@ const Home = () => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
 
-    // Service images mapping
+    // Smooth scroll to section
+    const scrollToSection = (e, sectionId) => {
+        e.preventDefault();
+        setMenuOpen(false);
+        const element = document.getElementById(sectionId);
+        if (element) {
+            const offset = 80;
+            const elementPosition = element.getBoundingClientRect().top;
+            const offsetPosition = elementPosition + window.pageYOffset - offset;
+            window.scrollTo({ top: offsetPosition, behavior: 'smooth' });
+        }
+    };
+
     const serviceImages = {
         'Cuci Kering Setrika': '/images/cuci-setrika.jpg',
-        'Cuci Kering Lipat': '/images/cuci-kering-lipat.jpg',
-        'Cuci Kering Saja': '/images/cuci-kering.jpg',
+        'Cuci Kering Lipat': '/images/cuci-standard.jpg',
+        'Cuci Kering Saja': '/images/cuci-standard.jpg',
         'Cuci Saja': '/images/cuci-standard.jpg',
-        'Setrika': '/images/setrika-saja.jpg',
+        'Setrika': '/images/cuci-setrika.jpg',
         'Sepatu': '/images/sepatu.jpg',
         'Bedcover Besar': '/images/bedcover.png',
-        'Bedcover Kecil': '/images/bedcover-kecil.jpg',
+        'Bedcover Kecil': '/images/bedcover.png',
         'Boneka Besar': '/images/boneka.jpg',
         'Boneka Kecil': '/images/boneka.jpg',
         'Karpet': '/images/karpet.jpg'
@@ -50,11 +63,11 @@ const Home = () => {
             <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
                 <div className="navbar-container">
                     <Link to="/" className="navbar-logo"><img src="/images/logo.png" alt="Mory Laundry" /></Link>
-                    <ul className="navbar-menu">
-                        <li><a href="#home">Beranda</a></li>
-                        <li><a href="#services">Layanan</a></li>
-                        <li><a href="#why-us">Keunggulan</a></li>
-                        <li><a href="#contact">Kontak</a></li>
+                    <ul className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
+                        <li><a href="#home" onClick={(e) => scrollToSection(e, 'home')}>Beranda</a></li>
+                        <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Layanan</a></li>
+                        <li><a href="#why-us" onClick={(e) => scrollToSection(e, 'why-us')}>Keunggulan</a></li>
+                        <li><a href="#contact" onClick={(e) => scrollToSection(e, 'contact')}>Kontak</a></li>
                     </ul>
                     <div className="navbar-auth">
                         {isAuthenticated ? (
@@ -65,6 +78,9 @@ const Home = () => {
                                 <Link to="/signup" className="btn btn-primary">Daftar</Link>
                             </>
                         )}
+                        <button className="navbar-toggle" onClick={() => setMenuOpen(!menuOpen)}>
+                            {menuOpen ? <FaTimes /> : <FaBars />}
+                        </button>
                     </div>
                 </div>
             </nav>
@@ -78,7 +94,7 @@ const Home = () => {
                         <p className="hero-desc">Percayakan cucian Anda kepada Mory Laundry. Dengan peralatan modern dan tenaga profesional, kami menjamin hasil cucian yang bersih, wangi, dan rapi.</p>
                         <div className="hero-buttons">
                             <a href="https://wa.me/6281217607101?text=Halo%20Mory%20Laundry" className="btn btn-primary" target="_blank" rel="noreferrer"><FaWhatsapp /> Order WhatsApp</a>
-                            <a href="#services" className="btn btn-outline">Lihat Layanan</a>
+                            <a href="#services" onClick={(e) => scrollToSection(e, 'services')} className="btn btn-outline">Lihat Layanan</a>
                         </div>
                         <div className="hero-stats">
                             <div><span className="hero-stat-num">500+</span><span className="hero-stat-label">Pelanggan Puas</span></div>
@@ -89,7 +105,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Services - Dynamic from Database */}
+            {/* Services */}
             <section className="section" id="services" style={{background: 'var(--light)'}}>
                 <div className="section-container">
                     <div className="section-header">
@@ -120,7 +136,7 @@ const Home = () => {
                 </div>
             </section>
 
-            {/* Why Us - With Staff Image */}
+            {/* Why Us */}
             <section className="section" id="why-us" style={{background: '#fff'}}>
                 <div className="section-container">
                     <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 60, alignItems: 'center'}}>
@@ -206,7 +222,7 @@ const Home = () => {
                 <div className="section-container">
                     <div className="footer-grid">
                         <div className="footer-brand">
-                            <img src="/images/logo.png" alt="Mory Laundry" style={{height: 50}} />
+                            <img src="/images/logo.png" alt="Mory Laundry" style={{height: 60}} />
                             <p>Mory Laundry adalah layanan laundry premium yang berkomitmen memberikan hasil terbaik.</p>
                             <div className="footer-social">
                                 <a href="#"><FaFacebook /></a>
@@ -217,17 +233,17 @@ const Home = () => {
                         <div>
                             <h4 className="footer-title">Layanan</h4>
                             <ul className="footer-links">
-                                <li><a href="#services">Cuci Kering</a></li>
-                                <li><a href="#services">Cuci Setrika</a></li>
-                                <li><a href="#services">Cuci Sepatu</a></li>
-                                <li><a href="#services">Cuci Bedcover</a></li>
+                                <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Cuci Kering</a></li>
+                                <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Cuci Setrika</a></li>
+                                <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Cuci Sepatu</a></li>
+                                <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Cuci Bedcover</a></li>
                             </ul>
                         </div>
                         <div>
                             <h4 className="footer-title">Link Cepat</h4>
                             <ul className="footer-links">
-                                <li><a href="#home">Beranda</a></li>
-                                <li><a href="#services">Layanan</a></li>
+                                <li><a href="#home" onClick={(e) => scrollToSection(e, 'home')}>Beranda</a></li>
+                                <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Layanan</a></li>
                                 <li><Link to="/login">Login</Link></li>
                                 <li><Link to="/signup">Daftar</Link></li>
                             </ul>

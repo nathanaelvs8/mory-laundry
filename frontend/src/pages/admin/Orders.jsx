@@ -2,14 +2,16 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
+import ConfirmModal from '../../components/ConfirmModal.jsx';
 import { ordersAPI } from '../../services/api';
-import { FaEye, FaSearch, FaFilter } from 'react-icons/fa';
+import { FaEye, FaSearch, FaTrash } from 'react-icons/fa';
 
 const AdminOrders = () => {
     const [orders, setOrders] = useState([]);
     const [loading, setLoading] = useState(true);
     const [search, setSearch] = useState('');
     const [statusFilter, setStatusFilter] = useState('');
+    const [confirmModal, setConfirmModal] = useState({ open: false, orderId: null, orderNumber: '' });
 
     useEffect(() => { loadOrders(); }, []);
 
@@ -17,20 +19,20 @@ const AdminOrders = () => {
         try {
             const res = await ordersAPI.getAll();
             setOrders(res.data.data || []);
-        } catch (err) { 
-            console.error(err);
-            toast.error('Gagal memuat data'); 
-        }
+        } catch (err) { toast.error('Gagal memuat data'); }
         setLoading(false);
     };
 
-    const handleUpdateStatus = async (id, newStatus) => {
-        if (!window.confirm(`Update status menjadi "${newStatus}"?`)) return;
+    const handleDelete = async () => {
         try {
-            await ordersAPI.updateStatus(id, newStatus);
-            toast.success('Status berhasil diupdate');
+            await ordersAPI.updateStatus(confirmModal.orderId, 'Dibatalkan');
+            toast.success('Pesanan berhasil dibatalkan');
             loadOrders();
-        } catch (err) { toast.error('Gagal update status'); }
+        } catch (err) { toast.error('Gagal membatalkan pesanan'); }
+    };
+
+    const openDeleteModal = (id, orderNumber) => {
+        setConfirmModal({ open: true, orderId: id, orderNumber });
     };
 
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
@@ -43,8 +45,7 @@ const AdminOrders = () => {
     };
 
     const filteredOrders = orders.filter(o => {
-        const matchSearch = o.order_number?.toLowerCase().includes(search.toLowerCase()) || 
-                           o.customer_name?.toLowerCase().includes(search.toLowerCase());
+        const matchSearch = o.order_number?.toLowerCase().includes(search.toLowerCase()) || o.customer_name?.toLowerCase().includes(search.toLowerCase());
         const matchStatus = !statusFilter || o.status === statusFilter;
         return matchSearch && matchStatus;
     });
@@ -79,7 +80,7 @@ const AdminOrders = () => {
                             <th>Tanggal</th>
                             <th style={{textAlign: 'right'}}>Total</th>
                             <th style={{textAlign: 'center'}}>Status</th>
-                            <th style={{width: 120}}>Aksi</th>
+                            <th>Aksi</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -102,15 +103,31 @@ const AdminOrders = () => {
                                     <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
                                 </td>
                                 <td>
-                                    <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 15px'}}>
-                                        <FaEye /> Detail
-                                    </Link>
+                                    <div style={{display: 'flex', gap: 8}}>
+                                        <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5}}>
+                                            <FaEye /> Detail
+                                        </Link>
+                                        {!['Selesai', 'Dibatalkan'].includes(o.status) && (
+                                            <button className="btn btn-danger btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5}} onClick={() => openDeleteModal(o.id, o.order_number)}>
+                                                <FaTrash /> Batalkan
+                                            </button>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            <ConfirmModal
+                isOpen={confirmModal.open}
+                onClose={() => setConfirmModal({ open: false, orderId: null, orderNumber: '' })}
+                onConfirm={handleDelete}
+                title="Batalkan Pesanan?"
+                message={`Apakah Anda yakin ingin membatalkan pesanan ${confirmModal.orderNumber}?`}
+                type="danger"
+            />
         </DashboardLayout>
     );
 };

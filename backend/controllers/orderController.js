@@ -168,7 +168,7 @@ const createOrder = async (req, res, next) => {
     }
 };
 
-// @desc    Update order status
+// @desc    Update order status (Admin only)
 // @route   PUT /api/orders/:id/status
 const updateOrderStatus = async (req, res, next) => {
     try {
@@ -207,6 +207,54 @@ const updateOrderStatus = async (req, res, next) => {
         res.json({
             success: true,
             message: 'Status pesanan berhasil diupdate',
+            data: updatedOrder[0]
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// @desc    Cancel own order (Customer only - only if status is 'Antrian')
+// @route   PUT /api/orders/:id/cancel
+const cancelMyOrder = async (req, res, next) => {
+    try {
+        const orderId = req.params.id;
+        const userId = req.user.id;
+        
+        // Check if order exists and belongs to this user
+        const [orders] = await db.query(
+            'SELECT * FROM orders WHERE id = ? AND user_id = ?',
+            [orderId, userId]
+        );
+        
+        if (orders.length === 0) {
+            return res.status(404).json({
+                success: false,
+                message: 'Pesanan tidak ditemukan'
+            });
+        }
+        
+        const order = orders[0];
+        
+        // Only allow cancel if status is 'Antrian'
+        if (order.status !== 'Antrian') {
+            return res.status(400).json({
+                success: false,
+                message: 'Pesanan hanya bisa dibatalkan jika statusnya masih Antrian'
+            });
+        }
+        
+        // Update status to 'Dibatalkan'
+        await db.query(
+            'UPDATE orders SET status = ? WHERE id = ?',
+            ['Dibatalkan', orderId]
+        );
+        
+        const [updatedOrder] = await db.query('SELECT * FROM orders WHERE id = ?', [orderId]);
+        
+        res.json({
+            success: true,
+            message: 'Pesanan berhasil dibatalkan',
             data: updatedOrder[0]
         });
     } catch (error) {
@@ -268,6 +316,7 @@ module.exports = {
     getOrder,
     createOrder,
     updateOrderStatus,
+    cancelMyOrder,
     getStats,
     getMyStats
 };

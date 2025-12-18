@@ -1,20 +1,23 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
+import ConfirmModal from '../../components/ConfirmModal.jsx';
 import { ordersAPI } from '../../services/api';
-import { FaShoppingCart, FaClock, FaCheckCircle, FaPlus, FaWhatsapp, FaEye } from 'react-icons/fa';
+import { FaShoppingCart, FaClock, FaCheckCircle, FaPlus, FaWhatsapp, FaEye, FaTimes } from 'react-icons/fa';
 
 const CustomerDashboard = () => {
     const [stats, setStats] = useState({ total: 0, active: 0, completed: 0 });
     const [recentOrders, setRecentOrders] = useState([]);
     const [loading, setLoading] = useState(true);
+    const [confirmModal, setConfirmModal] = useState({ open: false, orderId: null, orderNumber: '' });
 
     useEffect(() => { loadData(); }, []);
 
     const loadData = async () => {
         try {
             const res = await ordersAPI.getMyOrders();
-            const orders = res.data.data;
+            const orders = res.data.data || [];
             setRecentOrders(orders.slice(0, 5));
             setStats({
                 total: orders.length,
@@ -23,6 +26,20 @@ const CustomerDashboard = () => {
             });
         } catch (err) { console.error(err); }
         setLoading(false);
+    };
+
+    const handleCancelOrder = async () => {
+        try {
+            await ordersAPI.cancelMyOrder(confirmModal.orderId);
+            toast.success('Pesanan berhasil dibatalkan');
+            loadData();
+        } catch (err) {
+            toast.error(err.response?.data?.message || 'Gagal membatalkan pesanan');
+        }
+    };
+
+    const openCancelModal = (id, orderNumber) => {
+        setConfirmModal({ open: true, orderId: id, orderNumber });
     };
 
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
@@ -43,14 +60,14 @@ const CustomerDashboard = () => {
             </div>
 
             <div style={{display: 'flex', gap: 20, marginBottom: 30, flexWrap: 'wrap'}}>
-                <Link to="/customer/orders/new" style={{textDecoration: 'none', flex: '1 1 300px'}}>
-                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 25, color: 'white', display: 'flex', alignItems: 'center', gap: 20, transition: 'transform .3s', height: '100%', boxSizing: 'border-box'}}>
+                <Link to="/customer/orders/new" style={{textDecoration: 'none', flex: '1 1 280px'}}>
+                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 25, color: 'white', display: 'flex', alignItems: 'center', gap: 20, height: '100%', boxSizing: 'border-box', cursor: 'pointer'}}>
                         <div style={{width: 55, height: 55, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0}}><FaPlus /></div>
                         <div><h3 style={{margin: '0 0 5px', fontSize: 18}}>Buat Pesanan Baru</h3><p style={{margin: 0, opacity: .9, fontSize: 13}}>Pesan layanan laundry sekarang</p></div>
                     </div>
                 </Link>
-                <a href="https://wa.me/6281217607101" target="_blank" rel="noreferrer" style={{textDecoration: 'none', flex: '1 1 300px'}}>
-                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 25, color: 'white', display: 'flex', alignItems: 'center', gap: 20, height: '100%', boxSizing: 'border-box'}}>
+                <a href="https://wa.me/6281217607101" target="_blank" rel="noreferrer" style={{textDecoration: 'none', flex: '1 1 280px'}}>
+                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 25, color: 'white', display: 'flex', alignItems: 'center', gap: 20, height: '100%', boxSizing: 'border-box', cursor: 'pointer'}}>
                         <div style={{width: 55, height: 55, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 22, flexShrink: 0}}><FaWhatsapp /></div>
                         <div><h3 style={{margin: '0 0 5px', fontSize: 18}}>Hubungi Kami</h3><p style={{margin: 0, opacity: .9, fontSize: 13}}>Chat via WhatsApp</p></div>
                     </div>
@@ -60,7 +77,7 @@ const CustomerDashboard = () => {
             <div className="table-container">
                 <div className="table-header"><h3 className="table-title">Pesanan Terbaru</h3><Link to="/customer/orders" className="btn btn-primary btn-sm">Lihat Semua</Link></div>
                 <table>
-                    <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th style={{width: 120}}>Aksi</th></tr></thead>
+                    <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
                     <tbody>
                         {loading ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
                         : recentOrders.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan. <Link to="/customer/orders/new" style={{color: 'var(--gold)'}}>Buat pesanan pertama!</Link></td></tr>
@@ -71,15 +88,36 @@ const CustomerDashboard = () => {
                                 <td>Rp {formatPrice(o.total_price)}</td>
                                 <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
                                 <td>
-                                    <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 15px'}}>
-                                        <FaEye /> Detail
-                                    </Link>
+                                    <div style={{display: 'flex', gap: 8, flexWrap: 'wrap'}}>
+                                        <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5}}>
+                                            <FaEye /> Detail
+                                        </Link>
+                                        {o.status === 'Antrian' && (
+                                            <button 
+                                                className="btn btn-danger btn-sm" 
+                                                style={{display: 'inline-flex', alignItems: 'center', gap: 5}}
+                                                onClick={() => openCancelModal(o.id, o.order_number)}
+                                            >
+                                                <FaTimes /> Batalkan
+                                            </button>
+                                        )}
+                                    </div>
                                 </td>
                             </tr>
                         ))}
                     </tbody>
                 </table>
             </div>
+
+            {/* Confirm Modal */}
+            <ConfirmModal
+                isOpen={confirmModal.open}
+                onClose={() => setConfirmModal({ open: false, orderId: null, orderNumber: '' })}
+                onConfirm={handleCancelOrder}
+                title="Batalkan Pesanan?"
+                message={`Apakah Anda yakin ingin membatalkan pesanan ${confirmModal.orderNumber}? Tindakan ini tidak dapat dibatalkan.`}
+                type="danger"
+            />
         </DashboardLayout>
     );
 };

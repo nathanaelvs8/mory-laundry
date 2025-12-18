@@ -133,7 +133,7 @@ const CustomerOrderDetail = () => {
                 {/* Catatan */}
                 {order.notes && (
                     <div style={{marginTop: 20, padding: 15, background: '#fff9e6', borderRadius: 8, border: '1px solid #f0e6cc'}}>
-                        <h4 style={{marginBottom: 10, color: '#8b7355'}}>Catatan:</h4>
+                        <h4 style={{marginBottom: 10, color: '#8b7355'}}>Alamat:</h4>
                         <p style={{margin: 0, color: '#666'}}>{order.notes}</p>
                     </div>
                 )}

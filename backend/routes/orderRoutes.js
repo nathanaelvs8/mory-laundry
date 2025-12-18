@@ -7,6 +7,7 @@ const {
     getOrder,
     createOrder,
     updateOrderStatus,
+    cancelMyOrder,
     getStats,
     getMyStats
 } = require('../controllers/orderController');
@@ -15,6 +16,7 @@ const {
 router.get('/my-orders', authMiddleware, getMyOrders);
 router.get('/my-stats', authMiddleware, getMyStats);
 router.post('/', authMiddleware, createOrder);
+router.put('/:id/cancel', authMiddleware, cancelMyOrder);  // NEW: Customer cancel order
 
 // Admin routes
 router.get('/', authMiddleware, adminMiddleware, getAllOrders);
