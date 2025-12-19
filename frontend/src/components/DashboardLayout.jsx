@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import ConfirmModal from './ConfirmModal.jsx';
+import AIChatWidget from './AIChatWidget.jsx';
 import { FaTachometerAlt, FaConciergeBell, FaShoppingCart, FaUsers, FaChartBar, FaPlusCircle, FaHistory, FaUser, FaHome, FaSignOutAlt, FaBars, FaTimes } from 'react-icons/fa';
 
 const DashboardLayout = ({ children, title }) => {
@@ -9,10 +11,15 @@ const DashboardLayout = ({ children, title }) => {
     const location = useLocation();
     const navigate = useNavigate();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [logoutModal, setLogoutModal] = useState(false);
 
     const handleLogout = () => {
         logout();
         navigate('/');
+    };
+
+    const openLogoutModal = () => {
+        setLogoutModal(true);
     };
 
     const adminMenu = [
@@ -68,7 +75,7 @@ const DashboardLayout = ({ children, title }) => {
                         <Link to="/" onClick={handleMenuClick}><FaHome /> <span>Kembali ke Beranda</span></Link>
                     </li>
                     <li>
-                        <a onClick={handleLogout} style={{cursor: 'pointer', color: '#ff6b6b'}}>
+                        <a onClick={openLogoutModal} style={{cursor: 'pointer', color: '#ff6b6b'}}>
                             <FaSignOutAlt /> <span>Logout</span>
                         </a>
                     </li>
@@ -90,6 +97,19 @@ const DashboardLayout = ({ children, title }) => {
                 </header>
                 <main className="content-area">{children}</main>
             </div>
+
+            {/* Logout Confirmation Modal */}
+            <ConfirmModal
+                isOpen={logoutModal}
+                onClose={() => setLogoutModal(false)}
+                onConfirm={handleLogout}
+                title="Konfirmasi Logout"
+                message="Apakah Anda yakin ingin keluar dari akun ini?"
+                type="warning"
+            />
+
+            {/* AI Chat Widget - Only for Admin */}
+            {isAdmin && <AIChatWidget />}
         </div>
     );
 };

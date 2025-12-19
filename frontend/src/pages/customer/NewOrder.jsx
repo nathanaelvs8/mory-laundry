@@ -13,7 +13,12 @@ const CustomerNewOrder = () => {
     const [services, setServices] = useState([]);
     const [loading, setLoading] = useState(true);
     const [submitting, setSubmitting] = useState(false);
-    const [formData, setFormData] = useState({ customer_name: user?.full_name || '', phone_number: user?.phone_number || '', notes: '' });
+    const [formData, setFormData] = useState({ 
+        customer_name: user?.full_name || '', 
+        phone_number: user?.phone_number || '', 
+        address: '',
+        notes: '' 
+    });
     const [orderItems, setOrderItems] = useState([]);
     const [selectedService, setSelectedService] = useState('');
     const [quantity, setQuantity] = useState('');
@@ -58,7 +63,13 @@ const CustomerNewOrder = () => {
     const handleConfirmSubmit = async () => {
         setSubmitting(true);
         try {
-            const res = await ordersAPI.create({ customer_name: formData.customer_name, phone_number: formData.phone_number, notes: formData.notes, items: orderItems });
+            const res = await ordersAPI.create({ 
+                customer_name: formData.customer_name, 
+                phone_number: formData.phone_number, 
+                address: formData.address,
+                notes: formData.notes, 
+                items: orderItems 
+            });
             toast.success(res.data.message || 'Pesanan berhasil dibuat!');
             navigate(`/customer/orders/${res.data.data.id}`);
         } catch (err) { toast.error(err.response?.data?.message || 'Gagal membuat pesanan'); }
@@ -117,9 +128,30 @@ const CustomerNewOrder = () => {
                         <tfoot><tr style={{background: '#f9f9f9'}}><td colSpan="3" style={{textAlign: 'right', fontWeight: 'bold', fontSize: 18, padding: 15}}>TOTAL</td><td style={{textAlign: 'right', fontWeight: 'bold', fontSize: 20, color: 'var(--gold)', padding: 15}}>Rp {formatPrice(getTotalPrice())}</td><td></td></tr></tfoot>
                     </table>
 
+                    <h4 style={{marginBottom: 20, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)'}}>📍 Alamat & Catatan</h4>
+                    
                     <div className="form-group">
-                        <label className="form-label">Alamat</label>
-                        <textarea className="form-control" rows="3" value={formData.notes} onChange={(e) => setFormData({...formData, notes: e.target.value})} placeholder="Tambahkan alamat"></textarea>
+                        <label className="form-label">Alamat Pengiriman / Pengambilan</label>
+                        <textarea 
+                            className="form-control" 
+                            rows="2" 
+                            value={formData.address} 
+                            onChange={(e) => setFormData({...formData, address: e.target.value})} 
+                            placeholder="Masukkan alamat lengkap untuk pengiriman atau pengambilan cucian"
+                            style={{resize: 'vertical'}}
+                        ></textarea>
+                    </div>
+
+                    <div className="form-group">
+                        <label className="form-label">Catatan Tambahan</label>
+                        <textarea 
+                            className="form-control" 
+                            rows="2" 
+                            value={formData.notes} 
+                            onChange={(e) => setFormData({...formData, notes: e.target.value})} 
+                            placeholder="Catatan khusus untuk pesanan (contoh: jangan dicampur, pisahkan warna, dll)"
+                            style={{resize: 'vertical'}}
+                        ></textarea>
                     </div>
 
                     <div style={{display: 'flex', gap: 15, marginTop: 25}}>

@@ -113,7 +113,7 @@ const createOrder = async (req, res, next) => {
     const connection = await db.getConnection();
     
     try {
-        const { customer_name, phone_number, items, notes } = req.body;
+        const { customer_name, phone_number, address, items, notes } = req.body;
         
         if (!items || items.length === 0) {
             return res.status(400).json({
@@ -128,8 +128,8 @@ const createOrder = async (req, res, next) => {
         await connection.beginTransaction();
         
         const [orderResult] = await connection.query(
-            'INSERT INTO orders (order_number, user_id, customer_name, phone_number, total_price, notes) VALUES (?, ?, ?, ?, ?, ?)',
-            [orderNumber, req.user.id, customer_name, phone_number, totalPrice, notes || null]
+            'INSERT INTO orders (order_number, user_id, customer_name, phone_number, address, total_price, notes) VALUES (?, ?, ?, ?, ?, ?, ?)',
+            [orderNumber, req.user.id, customer_name, phone_number, address || null, totalPrice, notes || null]
         );
         
         const orderId = orderResult.insertId;

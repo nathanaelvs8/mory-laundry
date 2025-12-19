@@ -3,7 +3,7 @@ import { useParams, Link } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
 import { ordersAPI } from '../../services/api';
-import { FaArrowLeft, FaPrint, FaWhatsapp, FaCheckCircle, FaFilePdf } from 'react-icons/fa';
+import { FaArrowLeft, FaPrint, FaWhatsapp, FaCheckCircle, FaMapMarkerAlt, FaStickyNote } from 'react-icons/fa';
 
 const CustomerOrderDetail = () => {
     const { id } = useParams();
@@ -130,10 +130,22 @@ const CustomerOrderDetail = () => {
                     </tfoot>
                 </table>
 
-                {/* Catatan */}
+                {/* Alamat Section */}
+                {order.address && (
+                    <div style={{marginTop: 20, padding: 15, background: '#e8f4fd', borderRadius: 8, border: '1px solid #b3d7f5'}}>
+                        <h4 style={{marginBottom: 10, color: '#1976d2', display: 'flex', alignItems: 'center', gap: 8}}>
+                            <FaMapMarkerAlt /> Alamat Pengiriman / Pengambilan
+                        </h4>
+                        <p style={{margin: 0, color: '#333'}}>{order.address}</p>
+                    </div>
+                )}
+
+                {/* Catatan Section */}
                 {order.notes && (
-                    <div style={{marginTop: 20, padding: 15, background: '#fff9e6', borderRadius: 8, border: '1px solid #f0e6cc'}}>
-                        <h4 style={{marginBottom: 10, color: '#8b7355'}}>Alamat:</h4>
+                    <div style={{marginTop: 15, padding: 15, background: '#fff9e6', borderRadius: 8, border: '1px solid #f0e6cc'}}>
+                        <h4 style={{marginBottom: 10, color: '#8b7355', display: 'flex', alignItems: 'center', gap: 8}}>
+                            <FaStickyNote /> Catatan Tambahan
+                        </h4>
                         <p style={{margin: 0, color: '#666'}}>{order.notes}</p>
                     </div>
                 )}

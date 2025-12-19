@@ -10,6 +10,7 @@ const authRoutes = require('./routes/authRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const orderRoutes = require('./routes/orderRoutes');
 const userRoutes = require('./routes/userRoutes');
+const chatRoutes = require('./routes/chatRoutes');
 
 const app = express();
 
@@ -23,6 +24,7 @@ app.use('/api/auth', authRoutes);
 app.use('/api/services', serviceRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/chat', chatRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -55,7 +57,7 @@ app.listen(PORT, () => {
     console.log(`
     ╔═══════════════════════════════════════════════════╗
     ║                                                   ║
-    ║   🧺 MORY LAUNDRY Server Running! 🧺             ║
+    ║   🧺 MORY LAUNDRY Server Running! 🧺              ║
     ║                                                   ║
     ║   URL: http://localhost:${PORT}                      ║
     ║   API: http://localhost:${PORT}/api                  ║
