@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import toast from 'react-hot-toast';
 import DashboardLayout from '../../components/DashboardLayout.jsx';
 import { ordersAPI } from '../../services/api';
-import { FaFilter, FaPrint, FaSearch, FaFileExcel, FaRedo } from 'react-icons/fa';
+import { FaFilter, FaPrint, FaSearch, FaRedo } from 'react-icons/fa';
 
 const AdminReports = () => {
     const [orders, setOrders] = useState([]);
@@ -75,38 +75,8 @@ const AdminReports = () => {
 
     return (
         <DashboardLayout title="Laporan Transaksi">
-            {/* Filter Form */}
-            <div className="table-container no-print" style={{padding: 20, marginBottom: 25}}>
-                <form onSubmit={handleFilter} style={{display: 'flex', gap: 15, flexWrap: 'wrap', alignItems: 'end'}}>
-                    <div className="form-group" style={{margin: 0, minWidth: 150}}>
-                        <label className="form-label">Dari Tanggal</label>
-                        <input type="date" className="form-control" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
-                    </div>
-                    <div className="form-group" style={{margin: 0, minWidth: 150}}>
-                        <label className="form-label">Sampai Tanggal</label>
-                        <input type="date" className="form-control" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
-                    </div>
-                    <div className="form-group" style={{margin: 0, minWidth: 150}}>
-                        <label className="form-label">Status</label>
-                        <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            <option value="">Semua Status</option>
-                            <option value="Antrian">Antrian</option>
-                            <option value="Proses Cuci">Proses Cuci</option>
-                            <option value="Proses Kering">Proses Kering</option>
-                            <option value="Setrika">Setrika</option>
-                            <option value="Siap Diambil">Siap Diambil</option>
-                            <option value="Selesai">Selesai</option>
-                            <option value="Dibatalkan">Dibatalkan</option>
-                        </select>
-                    </div>
-                    <button type="submit" className="btn btn-primary"><FaFilter /> Filter</button>
-                    <button type="button" className="btn btn-secondary" onClick={handleReset}><FaRedo /> Reset</button>
-                    <button type="button" className="btn btn-outline" onClick={handlePrint}><FaPrint /> Cetak PDF</button>
-                </form>
-            </div>
-
-            {/* Summary Cards */}
-            <div className="stats-grid print-area">
+            {/* 1. Summary Cards FIRST - Mobile compact */}
+            <div className="stats-grid print-area" style={{marginBottom: 20}}>
                 <div className="stat-card">
                     <div className="stat-icon gold">📊</div>
                     <div>
@@ -137,7 +107,39 @@ const AdminReports = () => {
                 </div>
             </div>
 
-            {/* Table */}
+            {/* 2. Filter Form SECOND */}
+            <div className="table-container no-print" style={{padding: 20, marginBottom: 25}}>
+                <form onSubmit={handleFilter} style={{display: 'flex', gap: 15, flexWrap: 'wrap', alignItems: 'end'}}>
+                    <div className="form-group" style={{margin: 0, minWidth: 140, flex: '1 1 140px'}}>
+                        <label className="form-label" style={{fontSize: 12}}>Dari Tanggal</label>
+                        <input type="date" className="form-control" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
+                    </div>
+                    <div className="form-group" style={{margin: 0, minWidth: 140, flex: '1 1 140px'}}>
+                        <label className="form-label" style={{fontSize: 12}}>Sampai Tanggal</label>
+                        <input type="date" className="form-control" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
+                    </div>
+                    <div className="form-group" style={{margin: 0, minWidth: 140, flex: '1 1 140px'}}>
+                        <label className="form-label" style={{fontSize: 12}}>Status</label>
+                        <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
+                            <option value="">Semua Status</option>
+                            <option value="Antrian">Antrian</option>
+                            <option value="Proses Cuci">Proses Cuci</option>
+                            <option value="Proses Kering">Proses Kering</option>
+                            <option value="Setrika">Setrika</option>
+                            <option value="Siap Diambil">Siap Diambil</option>
+                            <option value="Selesai">Selesai</option>
+                            <option value="Dibatalkan">Dibatalkan</option>
+                        </select>
+                    </div>
+                    <div style={{display: 'flex', gap: 10, flexWrap: 'wrap', flex: '1 1 100%'}}>
+                        <button type="submit" className="btn btn-primary btn-sm"><FaFilter /> Filter</button>
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={handleReset}><FaRedo /> Reset</button>
+                        <button type="button" className="btn btn-outline btn-sm" onClick={handlePrint}><FaPrint /> Cetak</button>
+                    </div>
+                </form>
+            </div>
+
+            {/* 3. Table THIRD */}
             <div className="table-container print-area">
                 <div className="table-header no-print">
                     <h3 className="table-title">Daftar Transaksi</h3>
@@ -155,6 +157,7 @@ const AdminReports = () => {
                     </p>
                 </div>
 
+                {/* Desktop Table */}
                 <table>
                     <thead>
                         <tr>
@@ -197,6 +200,56 @@ const AdminReports = () => {
                         </tfoot>
                     )}
                 </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>
+                            <div className="spinner"></div>
+                            <p style={{marginTop: 10}}>Loading...</p>
+                        </div>
+                    ) : filteredOrders.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>
+                            Tidak ada data transaksi
+                        </div>
+                    ) : (
+                        <>
+                            {filteredOrders.map((o, i) => (
+                                <div key={o.id} className="mobile-card-item">
+                                    <div className="mobile-card-header">
+                                        <span className="mobile-card-title">{o.order_number}</span>
+                                        <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
+                                    </div>
+                                    <div className="mobile-card-row">
+                                        <span className="mobile-card-label">Pelanggan</span>
+                                        <span className="mobile-card-value">{o.customer_name}</span>
+                                    </div>
+                                    <div className="mobile-card-row">
+                                        <span className="mobile-card-label">Tanggal</span>
+                                        <span className="mobile-card-value">{formatDate(o.entry_date)}</span>
+                                    </div>
+                                    <div className="mobile-card-row">
+                                        <span className="mobile-card-label">Total</span>
+                                        <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(o.total_price)}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {/* Total Footer for Mobile */}
+                            <div style={{
+                                background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+                                borderRadius: 12,
+                                padding: 20,
+                                marginTop: 15,
+                                color: '#fff',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{fontSize: 12, opacity: 0.9, marginBottom: 5}}>Total Pendapatan (Selesai)</div>
+                                <div style={{fontSize: 24, fontWeight: 700}}>Rp {formatPrice(summary.totalRevenue)}</div>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
             {/* Print Styles */}
@@ -209,6 +262,8 @@ const AdminReports = () => {
                     .print-header { display: block !important; }
                     .stats-grid { margin-bottom: 20px; }
                     .stat-card { border: 1px solid #ddd; }
+                    .mobile-card { display: none !important; }
+                    table { display: table !important; }
                 }
                 .spinner {
                     width: 40px; height: 40px; margin: 0 auto;
