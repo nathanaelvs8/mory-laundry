@@ -58,12 +58,14 @@ const AdminReports = () => {
         return 'proses';
     };
 
+    // Filter orders
     const filteredOrders = orders.filter(o => {
         const matchSearch = o.order_number?.toLowerCase().includes(search.toLowerCase()) || 
                            o.customer_name?.toLowerCase().includes(search.toLowerCase());
         return matchSearch;
     });
 
+    // Calculate summary
     const summary = {
         totalTransactions: filteredOrders.length,
         completedTransactions: filteredOrders.filter(o => o.status === 'Selesai').length,
@@ -73,7 +75,7 @@ const AdminReports = () => {
 
     return (
         <DashboardLayout title="Laporan Transaksi">
-            {/* Summary Cards */}
+            {/* 1. Summary Cards FIRST - Mobile compact */}
             <div className="stats-grid print-area" style={{marginBottom: 20}}>
                 <div className="stat-card">
                     <div className="stat-icon gold">📊</div>
@@ -100,94 +102,175 @@ const AdminReports = () => {
                     <div className="stat-icon orange">📈</div>
                     <div>
                         <div className="stat-value">Rp {formatPrice(Math.round(summary.avgTransaction))}</div>
-                        <div className="stat-label">Rata-rata</div>
+                        <div className="stat-label">Rata-rata Transaksi</div>
                     </div>
                 </div>
             </div>
 
-            {/* Filter */}
-            <div className="table-container no-print" style={{padding: 20, marginBottom: 20}}>
-                <form onSubmit={handleFilter} style={{display: 'flex', gap: 10, flexWrap: 'wrap', alignItems: 'end'}}>
-                    <div className="form-group" style={{margin: 0, flex: '1 1 130px'}}>
+            {/* 2. Filter Form SECOND */}
+            <div className="table-container no-print" style={{padding: 20, marginBottom: 25}}>
+                <form onSubmit={handleFilter} style={{display: 'flex', gap: 15, flexWrap: 'wrap', alignItems: 'end'}}>
+                    <div className="form-group" style={{margin: 0, minWidth: 140, flex: '1 1 140px'}}>
                         <label className="form-label" style={{fontSize: 12}}>Dari Tanggal</label>
                         <input type="date" className="form-control" value={startDate} onChange={(e) => setStartDate(e.target.value)} />
                     </div>
-                    <div className="form-group" style={{margin: 0, flex: '1 1 130px'}}>
+                    <div className="form-group" style={{margin: 0, minWidth: 140, flex: '1 1 140px'}}>
                         <label className="form-label" style={{fontSize: 12}}>Sampai Tanggal</label>
                         <input type="date" className="form-control" value={endDate} onChange={(e) => setEndDate(e.target.value)} />
                     </div>
-                    <div className="form-group" style={{margin: 0, flex: '1 1 130px'}}>
+                    <div className="form-group" style={{margin: 0, minWidth: 140, flex: '1 1 140px'}}>
                         <label className="form-label" style={{fontSize: 12}}>Status</label>
                         <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)}>
-                            <option value="">Semua</option>
+                            <option value="">Semua Status</option>
+                            <option value="Antrian">Antrian</option>
+                            <option value="Proses Cuci">Proses Cuci</option>
+                            <option value="Proses Kering">Proses Kering</option>
+                            <option value="Setrika">Setrika</option>
+                            <option value="Siap Diambil">Siap Diambil</option>
                             <option value="Selesai">Selesai</option>
                             <option value="Dibatalkan">Dibatalkan</option>
                         </select>
                     </div>
-                    <div style={{display: 'flex', gap: 8, flex: '1 1 100%'}}>
+                    <div style={{display: 'flex', gap: 10, flexWrap: 'wrap', flex: '1 1 100%'}}>
                         <button type="submit" className="btn btn-primary btn-sm"><FaFilter /> Filter</button>
-                        <button type="button" className="btn btn-secondary btn-sm" onClick={handleReset}><FaRedo /></button>
-                        <button type="button" className="btn btn-outline btn-sm" onClick={handlePrint}><FaPrint /></button>
+                        <button type="button" className="btn btn-secondary btn-sm" onClick={handleReset}><FaRedo /> Reset</button>
+                        <button type="button" className="btn btn-outline btn-sm" onClick={handlePrint}><FaPrint /> Cetak</button>
                     </div>
                 </form>
             </div>
 
-            {/* Table */}
+            {/* 3. Table THIRD */}
             <div className="table-container print-area">
                 <div className="table-header no-print">
                     <h3 className="table-title">Daftar Transaksi</h3>
-                    <div className="search-box" style={{marginTop: 10}}>
+                    <div className="search-box">
                         <FaSearch />
-                        <input type="text" placeholder="Cari..." value={search} onChange={(e) => setSearch(e.target.value)} />
+                        <input type="text" placeholder="Cari order/pelanggan..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
                 </div>
 
-                <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th style={{width: 50}}>No</th>
-                                <th>No. Order</th>
-                                <th>Pelanggan</th>
-                                <th>Tanggal</th>
-                                <th style={{textAlign: 'right'}}>Total</th>
-                                <th style={{textAlign: 'center'}}>Status</th>
+                {/* Print Header */}
+                <div className="print-header" style={{display: 'none'}}>
+                    <h2 style={{textAlign: 'center', marginBottom: 5}}>LAPORAN TRANSAKSI</h2>
+                    <p style={{textAlign: 'center', color: '#666', marginBottom: 20}}>
+                        Mory Laundry - {startDate && endDate ? `${formatDate(startDate)} s/d ${formatDate(endDate)}` : 'Semua Periode'}
+                    </p>
+                </div>
+
+                {/* Desktop Table */}
+                <table>
+                    <thead>
+                        <tr>
+                            <th style={{width: 50}}>No</th>
+                            <th>No. Order</th>
+                            <th>Pelanggan</th>
+                            <th>Tanggal</th>
+                            <th style={{textAlign: 'right'}}>Total</th>
+                            <th style={{textAlign: 'center'}}>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {loading ? (
+                            <tr><td colSpan="6" style={{textAlign: 'center', padding: 40}}>
+                                <div className="spinner"></div>
+                                <p style={{marginTop: 10}}>Loading...</p>
+                            </td></tr>
+                        ) : filteredOrders.length === 0 ? (
+                            <tr><td colSpan="6" style={{textAlign: 'center', padding: 40, color: '#999'}}>
+                                Tidak ada data transaksi
+                            </td></tr>
+                        ) : filteredOrders.map((o, i) => (
+                            <tr key={o.id}>
+                                <td>{i + 1}</td>
+                                <td><strong>{o.order_number}</strong></td>
+                                <td>{o.customer_name}</td>
+                                <td>{formatDate(o.entry_date)}</td>
+                                <td style={{textAlign: 'right'}}>Rp {formatPrice(o.total_price)}</td>
+                                <td style={{textAlign: 'center'}}><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
                             </tr>
-                        </thead>
-                        <tbody>
-                            {loading ? (
-                                <tr><td colSpan="6" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                            ) : filteredOrders.length === 0 ? (
-                                <tr><td colSpan="6" style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</td></tr>
-                            ) : filteredOrders.map((o, i) => (
-                                <tr key={o.id}>
-                                    <td>{i + 1}</td>
-                                    <td><strong>{o.order_number}</strong></td>
-                                    <td>{o.customer_name}</td>
-                                    <td>{formatDate(o.entry_date)}</td>
-                                    <td style={{textAlign: 'right'}}>Rp {formatPrice(o.total_price)}</td>
-                                    <td style={{textAlign: 'center'}}><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
-                </div>
+                        ))}
+                    </tbody>
+                    {filteredOrders.length > 0 && (
+                        <tfoot>
+                            <tr style={{background: '#f9f9f9'}}>
+                                <td colSpan="4" style={{textAlign: 'right', fontWeight: 'bold', padding: 15}}>TOTAL PENDAPATAN (Selesai):</td>
+                                <td style={{textAlign: 'right', fontWeight: 'bold', color: 'var(--gold)', fontSize: 16, padding: 15}}>Rp {formatPrice(summary.totalRevenue)}</td>
+                                <td></td>
+                            </tr>
+                        </tfoot>
+                    )}
+                </table>
 
-                {/* Total Footer - stays fixed */}
-                {filteredOrders.length > 0 && (
-                    <div style={{padding: 15, background: '#f9f9f9', borderTop: '2px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10}}>
-                        <span style={{fontWeight: 600}}>Total Pendapatan (Selesai):</span>
-                        <span style={{fontWeight: 700, fontSize: 18, color: 'var(--gold)'}}>Rp {formatPrice(summary.totalRevenue)}</span>
-                    </div>
-                )}
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>
+                            <div className="spinner"></div>
+                            <p style={{marginTop: 10}}>Loading...</p>
+                        </div>
+                    ) : filteredOrders.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>
+                            Tidak ada data transaksi
+                        </div>
+                    ) : (
+                        <>
+                            {filteredOrders.map((o, i) => (
+                                <div key={o.id} className="mobile-card-item">
+                                    <div className="mobile-card-header">
+                                        <span className="mobile-card-title">{o.order_number}</span>
+                                        <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
+                                    </div>
+                                    <div className="mobile-card-row">
+                                        <span className="mobile-card-label">Pelanggan</span>
+                                        <span className="mobile-card-value">{o.customer_name}</span>
+                                    </div>
+                                    <div className="mobile-card-row">
+                                        <span className="mobile-card-label">Tanggal</span>
+                                        <span className="mobile-card-value">{formatDate(o.entry_date)}</span>
+                                    </div>
+                                    <div className="mobile-card-row">
+                                        <span className="mobile-card-label">Total</span>
+                                        <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(o.total_price)}</span>
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            {/* Total Footer for Mobile */}
+                            <div style={{
+                                background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+                                borderRadius: 12,
+                                padding: 20,
+                                marginTop: 15,
+                                color: '#fff',
+                                textAlign: 'center'
+                            }}>
+                                <div style={{fontSize: 12, opacity: 0.9, marginBottom: 5}}>Total Pendapatan (Selesai)</div>
+                                <div style={{fontSize: 24, fontWeight: 700}}>Rp {formatPrice(summary.totalRevenue)}</div>
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
 
+            {/* Print Styles */}
             <style>{`
                 @media print {
                     body * { visibility: hidden; }
                     .print-area, .print-area * { visibility: visible; }
+                    .print-area { position: relative; }
                     .no-print { display: none !important; }
+                    .print-header { display: block !important; }
+                    .stats-grid { margin-bottom: 20px; }
+                    .stat-card { border: 1px solid #ddd; }
+                    .mobile-card { display: none !important; }
+                    table { display: table !important; }
                 }
+                .spinner {
+                    width: 40px; height: 40px; margin: 0 auto;
+                    border: 4px solid #f3f3f3; border-top: 4px solid var(--gold);
+                    border-radius: 50%; animation: spin 1s linear infinite;
+                }
+                @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
             `}</style>
         </DashboardLayout>
     );

@@ -246,25 +246,81 @@ tr:hover { background: var(--light); }
     .stat-value { font-size: 16px; line-height: 1.2; }
     .stat-label { font-size: 10px; line-height: 1.2; }
     
-    /* Table horizontal scroll */
-    .table-container { overflow: hidden; }
-    .table-scroll-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    table { min-width: 600px; }
+    /* Hide table, show cards on mobile */
+    .table-container table { display: none; }
+    .mobile-card { display: block; }
+    
+    .mobile-card-item {
+        background: #fff;
+        border-radius: var(--radius);
+        padding: 15px;
+        margin-bottom: 15px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        border-left: 4px solid var(--gold);
+    }
+    
+    .mobile-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 12px;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .mobile-card-title {
+        font-weight: 600;
+        font-size: 15px;
+        color: var(--dark);
+    }
+    
+    .mobile-card-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+        font-size: 13px;
+    }
+    
+    .mobile-card-row:last-child {
+        border-bottom: none;
+    }
+    
+    .mobile-card-label {
+        color: var(--gray);
+        font-weight: 500;
+    }
+    
+    .mobile-card-value {
+        color: var(--dark);
+        text-align: right;
+        max-width: 60%;
+        word-break: break-word;
+    }
+    
+    .mobile-card-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 12px;
+        padding-top: 12px;
+        border-top: 1px solid #f0f0f0;
+        flex-wrap: wrap;
+    }
+    
+    .mobile-card-actions .btn {
+        flex: 1;
+        min-width: 80px;
+        justify-content: center;
+        padding: 10px 15px;
+        font-size: 12px;
+    }
     
     .navbar-container { padding: 0 15px; }
     .navbar-logo img { height: 45px; }
     .navbar-auth .btn-outline { display: none; }
-    .navbar-auth .btn-primary { display: none; }
     
-    /* Auth pages */
     .auth-card { padding: 30px 20px; }
-    .auth-logo { text-align: center; margin-bottom: 30px; }
-    .auth-logo img { height: 100px; }
-    .auth-footer { text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid #eee; }
-    .auth-footer a { color: var(--gold); font-weight: 600; }
-    
-    /* Sidebar logo bigger */
-    .sidebar-logo img { height: 55px; }
+    .auth-logo img { height: 70px; }
     
     .content-area { padding: 15px; }
     .page-title { font-size: 18px; }
@@ -281,13 +337,12 @@ tr:hover { background: var(--light); }
     /* Button adjustments */
     .btn { padding: 10px 20px; font-size: 13px; }
     
-    /* Modal adjustments - center everything */
+    /* Modal adjustments */
     .modal { padding: 20px; width: 95%; }
     .modal-title { font-size: 18px; }
-    .confirm-modal { padding: 25px 15px; text-align: center; }
-    .confirm-modal-icon { display: flex; justify-content: center; margin: 0 auto 20px; }
+    .confirm-modal { padding: 25px 15px; }
     .confirm-modal-buttons { flex-direction: column; }
-    .confirm-modal-buttons .btn { width: 100%; justify-content: center; }
+    .confirm-modal-buttons .btn { width: 100%; }
 }
 
 /* Responsive - Small Mobile */
@@ -307,6 +362,16 @@ tr:hover { background: var(--light); }
     .hero-buttons { flex-direction: column; }
     .hero-buttons .btn { width: 100%; justify-content: center; }
     
+    .mobile-card-row {
+        flex-direction: column;
+        gap: 4px;
+    }
+    
+    .mobile-card-value {
+        text-align: left;
+        max-width: 100%;
+    }
+    
     .top-bar {
         padding: 12px 15px;
     }
@@ -314,7 +379,4 @@ tr:hover { background: var(--light); }
     .user-info span {
         display: none;
     }
-    
-    /* Sidebar logo even bigger on small mobile */
-    .sidebar-logo img { height: 50px; }
 }

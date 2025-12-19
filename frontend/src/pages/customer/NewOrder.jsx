@@ -82,6 +82,7 @@ const CustomerNewOrder = () => {
         <DashboardLayout title="Buat Pesanan Baru">
             <div className="table-container" style={{ padding: '20px' }}>
                 <form onSubmit={handleSubmitClick}>
+                    {/* Info Pelanggan */}
                     <h4 style={{ marginBottom: 15, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)', fontSize: 16 }}>📋 Info Pelanggan</h4>
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 15, marginBottom: 25 }}>
                         <div className="form-group" style={{ margin: 0 }}>
@@ -94,6 +95,7 @@ const CustomerNewOrder = () => {
                         </div>
                     </div>
 
+                    {/* Pilih Layanan */}
                     <h4 style={{ marginBottom: 15, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)', fontSize: 16 }}>🧺 Pilih Layanan</h4>
                     <div style={{ display: 'flex', flexDirection: 'column', gap: 10, marginBottom: 15 }}>
                         <div className="form-group" style={{ margin: 0 }}>
@@ -114,47 +116,85 @@ const CustomerNewOrder = () => {
                         </div>
                     </div>
 
-                    <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch', marginBottom: 15}}>
-                        <table style={{minWidth: 450}}>
-                            <thead><tr><th>Layanan</th><th style={{ textAlign: 'center' }}>Jumlah</th><th style={{ textAlign: 'right' }}>Harga</th><th style={{ textAlign: 'right' }}>Subtotal</th><th style={{ width: 50 }}></th></tr></thead>
-                            <tbody>
-                                {orderItems.length === 0 ? <tr><td colSpan="5" style={{ textAlign: 'center', padding: 30, color: '#999' }}>Belum ada layanan dipilih</td></tr>
-                                    : orderItems.map((item, index) => (
-                                        <tr key={index}>
-                                            <td><strong>{item.service_name}</strong></td>
-                                            <td style={{ textAlign: 'center' }}>{item.quantity} {item.unit}</td>
-                                            <td style={{ textAlign: 'right' }}>Rp {formatPrice(item.price)}</td>
-                                            <td style={{ textAlign: 'right' }}>Rp {formatPrice(item.subtotal)}</td>
-                                            <td><button type="button" className="btn btn-sm" onClick={() => handleRemoveItem(index)} style={{ background: '#fee', color: '#d00', padding: '6px 10px' }}><FaTrash /></button></td>
-                                        </tr>
-                                    ))}
-                            </tbody>
-                        </table>
+                    {/* Daftar Item - Cards */}
+                    <div style={{marginBottom: 15}}>
+                        {orderItems.length === 0 ? (
+                            <div style={{ textAlign: 'center', padding: 30, color: '#999', background: '#f9f9f9', borderRadius: 8 }}>Belum ada layanan dipilih</div>
+                        ) : (
+                            <div style={{display: 'flex', flexDirection: 'column', gap: 10}}>
+                                {orderItems.map((item, index) => (
+                                    <div key={index} style={{
+                                        background: '#f9f9f9',
+                                        borderRadius: 10,
+                                        padding: 12,
+                                        display: 'flex',
+                                        justifyContent: 'space-between',
+                                        alignItems: 'center',
+                                        gap: 10
+                                    }}>
+                                        <div style={{flex: 1}}>
+                                            <div style={{fontWeight: 600, fontSize: 14, marginBottom: 4}}>{item.service_name}</div>
+                                            <div style={{fontSize: 12, color: '#666'}}>{item.quantity} {item.unit} × Rp {formatPrice(item.price)}</div>
+                                            <div style={{fontSize: 14, fontWeight: 600, color: 'var(--gold)', marginTop: 4}}>Rp {formatPrice(item.subtotal)}</div>
+                                        </div>
+                                        <button type="button" onClick={() => handleRemoveItem(index)} style={{ background: '#fee', color: '#d00', border: 'none', borderRadius: 8, padding: '8px 12px', cursor: 'pointer' }}><FaTrash /></button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
                     </div>
 
-                    <div style={{ background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 10, padding: 15, color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 20 }}>
+                    {/* Total */}
+                    <div style={{
+                        background: 'linear-gradient(135deg, var(--gold), var(--gold-light))',
+                        borderRadius: 10,
+                        padding: 15,
+                        color: '#fff',
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                        marginBottom: 20
+                    }}>
                         <span style={{fontSize: 14, fontWeight: 500}}>TOTAL</span>
                         <span style={{fontSize: 20, fontWeight: 700}}>Rp {formatPrice(getTotalPrice())}</span>
                     </div>
 
+                    {/* Alamat & Catatan */}
                     <h4 style={{ marginBottom: 15, paddingBottom: 10, borderBottom: '2px solid #eee', color: 'var(--gold)', fontSize: 16 }}>📍 Alamat & Catatan</h4>
+
                     <div className="form-group">
-                        <label className="form-label" style={{fontSize: 13}}>Alamat (opsional)</label>
-                        <textarea className="form-control" rows="2" value={formData.address} onChange={(e) => setFormData({ ...formData, address: e.target.value })} placeholder="Alamat lengkap" style={{ resize: 'vertical' }}></textarea>
-                    </div>
-                    <div className="form-group">
-                        <label className="form-label" style={{fontSize: 13}}>Catatan (opsional)</label>
-                        <textarea className="form-control" rows="2" value={formData.notes} onChange={(e) => setFormData({ ...formData, notes: e.target.value })} placeholder="Catatan khusus" style={{ resize: 'vertical' }}></textarea>
+                        <label className="form-label" style={{fontSize: 13}}>Alamat Pengiriman / Pengambilan</label>
+                        <textarea
+                            className="form-control"
+                            rows="2"
+                            value={formData.address}
+                            onChange={(e) => setFormData({ ...formData, address: e.target.value })}
+                            placeholder="Alamat lengkap (opsional)"
+                            style={{ resize: 'vertical' }}
+                        ></textarea>
                     </div>
 
+                    <div className="form-group">
+                        <label className="form-label" style={{fontSize: 13}}>Catatan Tambahan</label>
+                        <textarea
+                            className="form-control"
+                            rows="2"
+                            value={formData.notes}
+                            onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
+                            placeholder="Catatan khusus (opsional)"
+                            style={{ resize: 'vertical' }}
+                        ></textarea>
+                    </div>
+
+                    {/* Buttons */}
                     <div style={{ display: 'flex', gap: 10, marginTop: 20, flexWrap: 'wrap' }}>
-                        <button type="button" className="btn btn-secondary" onClick={() => navigate('/customer/dashboard')}><FaArrowLeft /> Batal</button>
-                        <button type="submit" className="btn btn-primary" disabled={submitting || orderItems.length === 0} style={{ flex: 1, minWidth: 200 }}><FaCheck /> {submitting ? 'Memproses...' : 'Buat Pesanan'}</button>
+                        <button type="button" className="btn btn-secondary" onClick={() => navigate('/customer/dashboard')} style={{flex: '0 0 auto'}}><FaArrowLeft /> Batal</button>
+                        <button type="submit" className="btn btn-primary" disabled={submitting || orderItems.length === 0} style={{ flex: 1, minWidth: 200 }}><FaCheck /> {submitting ? 'Memproses...' : `Buat Pesanan`}</button>
                     </div>
                 </form>
             </div>
 
-            <ConfirmModal isOpen={confirmModal} onClose={() => setConfirmModal(false)} onConfirm={handleConfirmSubmit} title="Buat Pesanan?" message={`Total pesanan: Rp ${formatPrice(getTotalPrice())}. Lanjutkan?`} type="warning" />
+            <ConfirmModal isOpen={confirmModal} onClose={() => setConfirmModal(false)} onConfirm={handleConfirmSubmit} title="Buat Pesanan?" message={`Total pesanan: Rp ${formatPrice(getTotalPrice())}. Lanjutkan membuat pesanan?`} type="warning" />
         </DashboardLayout>
     );
 };

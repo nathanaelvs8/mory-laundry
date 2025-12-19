@@ -81,27 +81,61 @@ const AdminServices = () => {
                         <button className="btn btn-primary btn-sm" onClick={openAddModal}><FaPlus /> Tambah</button>
                     </div>
                 </div>
-                <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
-                    <table>
-                        <thead><tr><th>No</th><th>Nama Layanan</th><th>Satuan</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
-                        <tbody>
-                            {loading ? <tr><td colSpan="6" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                            : filtered.length === 0 ? <tr><td colSpan="6" style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</td></tr>
-                            : filtered.map((s, i) => (
-                                <tr key={s.id}>
-                                    <td>{i + 1}</td>
-                                    <td><strong>{s.service_name}</strong></td>
-                                    <td>{s.unit}</td>
-                                    <td>Rp {formatPrice(s.price)}</td>
-                                    <td><span className={`status-badge ${s.is_active ? 'selesai' : 'batal'}`}>{s.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
-                                    <td>
-                                        <button className="action-btn edit" onClick={() => openEditModal(s)}><FaEdit /></button>
-                                        <button className="action-btn delete" onClick={() => handleDeleteClick(s.id)}><FaTrash /></button>
-                                    </td>
-                                </tr>
-                            ))}
-                        </tbody>
-                    </table>
+
+                {/* Desktop Table */}
+                <table>
+                    <thead><tr><th>No</th><th>Nama Layanan</th><th>Satuan</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
+                    <tbody>
+                        {loading ? <tr><td colSpan="6" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
+                        : filtered.length === 0 ? <tr><td colSpan="6" style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</td></tr>
+                        : filtered.map((s, i) => (
+                            <tr key={s.id}>
+                                <td>{i + 1}</td>
+                                <td><strong>{s.service_name}</strong></td>
+                                <td>{s.unit}</td>
+                                <td>Rp {formatPrice(s.price)}</td>
+                                <td><span className={`status-badge ${s.is_active ? 'selesai' : 'batal'}`}>{s.is_active ? 'Aktif' : 'Nonaktif'}</span></td>
+                                <td>
+                                    <button className="action-btn edit" onClick={() => openEditModal(s)}><FaEdit /></button>
+                                    <button className="action-btn delete" onClick={() => handleDeleteClick(s.id)}><FaTrash /></button>
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</div>
+                    ) : filtered.map((s, i) => (
+                        <div key={s.id} className="mobile-card-item">
+                            <div className="mobile-card-header">
+                                <span className="mobile-card-title">{s.service_name}</span>
+                                <span className={`status-badge ${s.is_active ? 'selesai' : 'batal'}`}>{s.is_active ? 'Aktif' : 'Nonaktif'}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Satuan</span>
+                                <span className="mobile-card-value">{s.unit}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Harga</span>
+                                <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(s.price)}</span>
+                            </div>
+                            {s.description && (
+                                <div className="mobile-card-row">
+                                    <span className="mobile-card-label">Deskripsi</span>
+                                    <span className="mobile-card-value">{s.description}</span>
+                                </div>
+                            )}
+                            <div className="mobile-card-actions">
+                                <button className="btn btn-outline btn-sm" onClick={() => openEditModal(s)}><FaEdit /> Edit</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(s.id)}><FaTrash /> Hapus</button>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -152,6 +186,7 @@ const AdminServices = () => {
                 </div>
             </div>
 
+            {/* Confirm Modal */}
             <ConfirmModal
                 isOpen={confirmModal.open}
                 onClose={() => setConfirmModal({ open: false, type: '', serviceId: null })}

@@ -42,25 +42,58 @@ const AdminUsers = () => {
                     <h3 className="table-title">Daftar Pengguna</h3>
                     <div className="search-box" style={{width: '100%', maxWidth: 300, marginTop: 10}}><FaSearch /><input type="text" placeholder="Cari user..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
                 </div>
-                <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
-                    <table>
-                        <thead><tr><th>No</th><th>Nama Lengkap</th><th>Username</th><th>No. HP</th><th>Role</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead>
-                        <tbody>
-                            {loading ? <tr><td colSpan="7" style={{ textAlign: 'center', padding: 40 }}>Loading...</td></tr>
-                                : filtered.length === 0 ? <tr><td colSpan="7" style={{ textAlign: 'center', padding: 40, color: '#999' }}>Tidak ada data</td></tr>
-                                    : filtered.map((u, i) => (
-                                        <tr key={u.id}>
-                                            <td>{i + 1}</td>
-                                            <td><strong>{u.full_name}</strong></td>
-                                            <td>{u.username}</td>
-                                            <td>{u.phone_number || '-'}</td>
-                                            <td><span className={`status-badge ${u.role === 'admin' ? 'selesai' : 'antrian'}`}>{u.role}</span></td>
-                                            <td>{formatDate(u.created_at)}</td>
-                                            <td>{u.role !== 'admin' && <button className="action-btn delete" onClick={() => handleDeleteClick(u.id, u.full_name, u.role)}><FaTrash /></button>}</td>
-                                        </tr>
-                                    ))}
-                        </tbody>
-                    </table>
+
+                {/* Desktop Table */}
+                <table>
+                    <thead><tr><th>No</th><th>Nama Lengkap</th><th>Username</th><th>No. HP</th><th>Role</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead>
+                    <tbody>
+                        {loading ? <tr><td colSpan="7" style={{ textAlign: 'center', padding: 40 }}>Loading...</td></tr>
+                            : filtered.length === 0 ? <tr><td colSpan="7" style={{ textAlign: 'center', padding: 40, color: '#999' }}>Tidak ada data</td></tr>
+                                : filtered.map((u, i) => (
+                                    <tr key={u.id}>
+                                        <td>{i + 1}</td>
+                                        <td><strong>{u.full_name}</strong></td>
+                                        <td>{u.username}</td>
+                                        <td>{u.phone_number || '-'}</td>
+                                        <td><span className={`status-badge ${u.role === 'admin' ? 'selesai' : 'antrian'}`}>{u.role}</span></td>
+                                        <td>{formatDate(u.created_at)}</td>
+                                        <td>{u.role !== 'admin' && <button className="action-btn delete" onClick={() => handleDeleteClick(u.id, u.full_name, u.role)}><FaTrash /></button>}</td>
+                                    </tr>
+                                ))}
+                    </tbody>
+                </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</div>
+                    ) : filtered.map((u, i) => (
+                        <div key={u.id} className="mobile-card-item">
+                            <div className="mobile-card-header">
+                                <span className="mobile-card-title">{u.full_name}</span>
+                                <span className={`status-badge ${u.role === 'admin' ? 'selesai' : 'antrian'}`}>{u.role}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Username</span>
+                                <span className="mobile-card-value">@{u.username}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">No. HP</span>
+                                <span className="mobile-card-value">{u.phone_number || '-'}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Tgl Daftar</span>
+                                <span className="mobile-card-value">{formatDate(u.created_at)}</span>
+                            </div>
+                            {u.role !== 'admin' && (
+                                <div className="mobile-card-actions">
+                                    <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(u.id, u.full_name, u.role)}><FaTrash /> Hapus</button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
                 </div>
             </div>
 

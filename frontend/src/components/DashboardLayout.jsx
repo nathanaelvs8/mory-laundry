@@ -46,24 +46,24 @@ const DashboardLayout = ({ children, title }) => {
     return (
         <div className="dashboard-layout">
             {/* Sidebar Overlay */}
-            <div 
-                className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`} 
+            <div
+                className={`sidebar-overlay ${sidebarOpen ? 'active' : ''}`}
                 onClick={() => setSidebarOpen(false)}
             ></div>
-            
+
             {/* Sidebar */}
             <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
                 <button className="sidebar-close" onClick={() => setSidebarOpen(false)}>
                     <FaTimes />
                 </button>
                 <div className="sidebar-logo">
-                    <Link to="/"><img src="/images/logo.png" alt="Mory Laundry" style={{height: 55}} /></Link>
+                    <Link to="/"><img src="/images/logo.png" alt="Mory Laundry" /></Link>
                 </div>
                 <ul className="sidebar-menu">
                     {menu.map((item, i) => (
                         <li key={i}>
-                            <Link 
-                                to={item.path} 
+                            <Link
+                                to={item.path}
                                 className={location.pathname === item.path ? 'active' : ''}
                                 onClick={handleMenuClick}
                             >
@@ -71,27 +71,27 @@ const DashboardLayout = ({ children, title }) => {
                             </Link>
                         </li>
                     ))}
-                    <li style={{marginTop: 30, borderTop: '1px solid rgba(255,255,255,.1)', paddingTop: 20}}>
+                    <li style={{ marginTop: 30, borderTop: '1px solid rgba(255,255,255,.1)', paddingTop: 20 }}>
                         <Link to="/" onClick={handleMenuClick}><FaHome /> <span>Kembali ke Beranda</span></Link>
                     </li>
                     <li>
-                        <a onClick={openLogoutModal} style={{cursor: 'pointer', color: '#ff6b6b'}}>
+                        <a onClick={openLogoutModal} style={{ cursor: 'pointer', color: '#ff6b6b' }}>
                             <FaSignOutAlt /> <span>Logout</span>
                         </a>
                     </li>
                 </ul>
             </aside>
-            
+
             <div className="main-content">
                 <header className="top-bar">
-                    <div style={{display: 'flex', alignItems: 'center', gap: 15}}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 15 }}>
                         <button className="menu-toggle" onClick={() => setSidebarOpen(true)}>
                             <FaBars />
                         </button>
                         <h1 className="page-title">{title}</h1>
                     </div>
                     <div className="user-info">
-                        <span style={{fontSize: 14, color: 'var(--gray)'}}>Halo, <strong>{user?.full_name}</strong></span>
+                        <span style={{ fontSize: 14, color: 'var(--gray)' }}>Halo, <strong>{user?.full_name}</strong></span>
                         <div className="user-avatar">{user?.full_name?.charAt(0).toUpperCase()}</div>
                     </div>
                 </header>
