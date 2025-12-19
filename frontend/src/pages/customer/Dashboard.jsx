@@ -61,13 +61,13 @@ const CustomerDashboard = () => {
 
             <div style={{display: 'flex', gap: 15, marginBottom: 25, flexWrap: 'wrap'}}>
                 <Link to="/customer/orders/new" style={{textDecoration: 'none', flex: '1 1 250px'}}>
-                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 20, color: 'white', display: 'flex', alignItems: 'center', gap: 15, height: '100%', boxSizing: 'border-box', cursor: 'pointer'}}>
+                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 20, color: 'white', display: 'flex', alignItems: 'center', gap: 15, cursor: 'pointer'}}>
                         <div style={{width: 45, height: 45, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0}}><FaPlus /></div>
                         <div><h3 style={{margin: '0 0 3px', fontSize: 15}}>Buat Pesanan Baru</h3><p style={{margin: 0, opacity: .9, fontSize: 12}}>Pesan layanan laundry</p></div>
                     </div>
                 </Link>
                 <a href="https://wa.me/6281217607101" target="_blank" rel="noreferrer" style={{textDecoration: 'none', flex: '1 1 250px'}}>
-                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 20, color: 'white', display: 'flex', alignItems: 'center', gap: 15, height: '100%', boxSizing: 'border-box', cursor: 'pointer'}}>
+                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 20, color: 'white', display: 'flex', alignItems: 'center', gap: 15, cursor: 'pointer'}}>
                         <div style={{width: 45, height: 45, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0}}><FaWhatsapp /></div>
                         <div><h3 style={{margin: '0 0 3px', fontSize: 15}}>Hubungi Kami</h3><p style={{margin: 0, opacity: .9, fontSize: 12}}>Chat via WhatsApp</p></div>
                     </div>
@@ -76,74 +76,30 @@ const CustomerDashboard = () => {
 
             <div className="table-container">
                 <div className="table-header"><h3 className="table-title">Pesanan Terbaru</h3><Link to="/customer/orders" className="btn btn-primary btn-sm">Lihat Semua</Link></div>
-                
-                {/* Desktop Table */}
-                <table>
-                    <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
-                    <tbody>
-                        {loading ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                        : recentOrders.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan. <Link to="/customer/orders/new" style={{color: 'var(--gold)'}}>Buat pesanan pertama!</Link></td></tr>
-                        : recentOrders.map(o => (
-                            <tr key={o.id}>
-                                <td><strong>{o.order_number}</strong></td>
-                                <td>{formatDate(o.entry_date)}</td>
-                                <td>Rp {formatPrice(o.total_price)}</td>
-                                <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
-                                <td>
-                                    <div style={{display: 'flex', gap: 8, flexWrap: 'wrap'}}>
-                                        <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5}}>
-                                            <FaEye /> Detail
-                                        </Link>
-                                        {o.status === 'Antrian' && (
-                                            <button 
-                                                className="btn btn-danger btn-sm" 
-                                                style={{display: 'inline-flex', alignItems: 'center', gap: 5}}
-                                                onClick={() => openCancelModal(o.id, o.order_number)}
-                                            >
-                                                <FaTimes /> Batalkan
-                                            </button>
-                                        )}
-                                    </div>
-                                </td>
-                            </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {/* Mobile Card View */}
-                <div className="mobile-card" style={{padding: 15}}>
-                    {loading ? (
-                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
-                    ) : recentOrders.length === 0 ? (
-                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>
-                            Belum ada pesanan. <Link to="/customer/orders/new" style={{color: 'var(--gold)'}}>Buat pesanan pertama!</Link>
-                        </div>
-                    ) : recentOrders.map(o => (
-                        <div key={o.id} className="mobile-card-item">
-                            <div className="mobile-card-header">
-                                <span className="mobile-card-title">{o.order_number}</span>
-                                <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
-                            </div>
-                            <div className="mobile-card-row">
-                                <span className="mobile-card-label">Tanggal</span>
-                                <span className="mobile-card-value">{formatDate(o.entry_date)}</span>
-                            </div>
-                            <div className="mobile-card-row">
-                                <span className="mobile-card-label">Total</span>
-                                <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(o.total_price)}</span>
-                            </div>
-                            <div className="mobile-card-actions">
-                                <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm">
-                                    <FaEye /> Detail
-                                </Link>
-                                {o.status === 'Antrian' && (
-                                    <button className="btn btn-danger btn-sm" onClick={() => openCancelModal(o.id, o.order_number)}>
-                                        <FaTimes /> Batalkan
-                                    </button>
-                                )}
-                            </div>
-                        </div>
-                    ))}
+                <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+                    <table style={{minWidth: 500}}>
+                        <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <tbody>
+                            {loading ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
+                            : recentOrders.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan</td></tr>
+                            : recentOrders.map(o => (
+                                <tr key={o.id}>
+                                    <td><strong>{o.order_number}</strong></td>
+                                    <td>{formatDate(o.entry_date)}</td>
+                                    <td>Rp {formatPrice(o.total_price)}</td>
+                                    <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
+                                    <td>
+                                        <div style={{display: 'flex', gap: 8}}>
+                                            <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm"><FaEye /></Link>
+                                            {o.status === 'Antrian' && (
+                                                <button className="btn btn-danger btn-sm" onClick={() => openCancelModal(o.id, o.order_number)}><FaTimes /></button>
+                                            )}
+                                        </div>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
 
@@ -152,7 +108,7 @@ const CustomerDashboard = () => {
                 onClose={() => setConfirmModal({ open: false, orderId: null, orderNumber: '' })}
                 onConfirm={handleCancelOrder}
                 title="Batalkan Pesanan?"
-                message={`Apakah Anda yakin ingin membatalkan pesanan ${confirmModal.orderNumber}? Tindakan ini tidak dapat dibatalkan.`}
+                message={`Apakah Anda yakin ingin membatalkan pesanan ${confirmModal.orderNumber}?`}
                 type="danger"
             />
         </DashboardLayout>

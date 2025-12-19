@@ -47,7 +47,7 @@ const CustomerOrders = () => {
                     </div>
                 </div>
                 <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
-                    <table>
+                    <table style={{minWidth: 500}}>
                         <thead>
                             <tr>
                                 <th>No. Order</th>
