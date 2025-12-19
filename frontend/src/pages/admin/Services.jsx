@@ -76,11 +76,13 @@ const AdminServices = () => {
             <div className="table-container">
                 <div className="table-header">
                     <h3 className="table-title">Daftar Layanan</h3>
-                    <div className="table-actions">
-                        <div className="search-box"><FaSearch /><input type="text" placeholder="Cari layanan..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
-                        <button className="btn btn-primary btn-sm" onClick={openAddModal}><FaPlus /> Tambah Layanan</button>
+                    <div className="table-actions" style={{display: 'flex', gap: 10, flexWrap: 'wrap', width: '100%', marginTop: 10}}>
+                        <div className="search-box" style={{flex: '1 1 200px'}}><FaSearch /><input type="text" placeholder="Cari layanan..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+                        <button className="btn btn-primary btn-sm" onClick={openAddModal}><FaPlus /> Tambah</button>
                     </div>
                 </div>
+
+                {/* Desktop Table */}
                 <table>
                     <thead><tr><th>No</th><th>Nama Layanan</th><th>Satuan</th><th>Harga</th><th>Status</th><th>Aksi</th></tr></thead>
                     <tbody>
@@ -101,6 +103,40 @@ const AdminServices = () => {
                         ))}
                     </tbody>
                 </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</div>
+                    ) : filtered.map((s, i) => (
+                        <div key={s.id} className="mobile-card-item">
+                            <div className="mobile-card-header">
+                                <span className="mobile-card-title">{s.service_name}</span>
+                                <span className={`status-badge ${s.is_active ? 'selesai' : 'batal'}`}>{s.is_active ? 'Aktif' : 'Nonaktif'}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Satuan</span>
+                                <span className="mobile-card-value">{s.unit}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Harga</span>
+                                <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(s.price)}</span>
+                            </div>
+                            {s.description && (
+                                <div className="mobile-card-row">
+                                    <span className="mobile-card-label">Deskripsi</span>
+                                    <span className="mobile-card-value">{s.description}</span>
+                                </div>
+                            )}
+                            <div className="mobile-card-actions">
+                                <button className="btn btn-outline btn-sm" onClick={() => openEditModal(s)}><FaEdit /> Edit</button>
+                                <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(s.id)}><FaTrash /> Hapus</button>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             {/* Form Modal */}

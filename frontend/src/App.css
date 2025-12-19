@@ -350,11 +350,12 @@ tr:hover { background: var(--light); }
     .stats-grid { grid-template-columns: 1fr 1fr; gap: 8px; }
     .stat-card { 
         padding: 10px 8px;
-        flex-direction: column; 
-        text-align: center; 
-        gap: 6px;
+        flex-direction: row; 
+        text-align: left; 
+        gap: 8px;
+        align-items: center;
     }
-    .stat-icon { width: 32px; height: 32px; font-size: 12px; min-width: 32px; }
+    .stat-icon { width: 32px; height: 32px; font-size: 12px; min-width: 32px; flex-shrink: 0; }
     .stat-value { font-size: 14px; }
     .stat-label { font-size: 9px; }
     

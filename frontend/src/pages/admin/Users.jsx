@@ -40,8 +40,10 @@ const AdminUsers = () => {
             <div className="table-container">
                 <div className="table-header">
                     <h3 className="table-title">Daftar Pengguna</h3>
-                    <div className="search-box"><FaSearch /><input type="text" placeholder="Cari user..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
+                    <div className="search-box" style={{width: '100%', maxWidth: 300, marginTop: 10}}><FaSearch /><input type="text" placeholder="Cari user..." value={search} onChange={(e) => setSearch(e.target.value)} /></div>
                 </div>
+
+                {/* Desktop Table */}
                 <table>
                     <thead><tr><th>No</th><th>Nama Lengkap</th><th>Username</th><th>No. HP</th><th>Role</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead>
                     <tbody>
@@ -60,6 +62,39 @@ const AdminUsers = () => {
                                 ))}
                     </tbody>
                 </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
+                    ) : filtered.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</div>
+                    ) : filtered.map((u, i) => (
+                        <div key={u.id} className="mobile-card-item">
+                            <div className="mobile-card-header">
+                                <span className="mobile-card-title">{u.full_name}</span>
+                                <span className={`status-badge ${u.role === 'admin' ? 'selesai' : 'antrian'}`}>{u.role}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Username</span>
+                                <span className="mobile-card-value">@{u.username}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">No. HP</span>
+                                <span className="mobile-card-value">{u.phone_number || '-'}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Tgl Daftar</span>
+                                <span className="mobile-card-value">{formatDate(u.created_at)}</span>
+                            </div>
+                            {u.role !== 'admin' && (
+                                <div className="mobile-card-actions">
+                                    <button className="btn btn-danger btn-sm" onClick={() => handleDeleteClick(u.id, u.full_name, u.role)}><FaTrash /> Hapus</button>
+                                </div>
+                            )}
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <ConfirmModal

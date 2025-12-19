@@ -55,12 +55,12 @@ const AdminOrders = () => {
             <div className="table-container">
                 <div className="table-header" style={{flexWrap: 'wrap', gap: 15}}>
                     <h3 className="table-title">Semua Pesanan</h3>
-                    <div style={{display: 'flex', gap: 10, flexWrap: 'wrap'}}>
-                        <div className="search-box">
+                    <div style={{display: 'flex', gap: 10, flexWrap: 'wrap', flex: '1 1 100%'}}>
+                        <div className="search-box" style={{flex: '1 1 200px'}}>
                             <FaSearch />
                             <input type="text" placeholder="Cari order/pelanggan..." value={search} onChange={(e) => setSearch(e.target.value)} />
                         </div>
-                        <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{width: 'auto', minWidth: 150}}>
+                        <select className="form-control" value={statusFilter} onChange={(e) => setStatusFilter(e.target.value)} style={{width: 'auto', minWidth: 130, flex: '0 0 auto'}}>
                             <option value="">Semua Status</option>
                             <option value="Antrian">Antrian</option>
                             <option value="Proses Cuci">Proses Cuci</option>
@@ -72,6 +72,8 @@ const AdminOrders = () => {
                         </select>
                     </div>
                 </div>
+
+                {/* Desktop Table */}
                 <table>
                     <thead>
                         <tr>
@@ -118,6 +120,50 @@ const AdminOrders = () => {
                         ))}
                     </tbody>
                 </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
+                    ) : filteredOrders.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>
+                            {search || statusFilter ? 'Pesanan tidak ditemukan' : 'Belum ada pesanan'}
+                        </div>
+                    ) : filteredOrders.map(o => (
+                        <div key={o.id} className="mobile-card-item">
+                            <div className="mobile-card-header">
+                                <span className="mobile-card-title">{o.order_number}</span>
+                                <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Pelanggan</span>
+                                <span className="mobile-card-value">{o.customer_name}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">No. HP</span>
+                                <span className="mobile-card-value">{o.phone_number}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Tanggal</span>
+                                <span className="mobile-card-value">{formatDate(o.entry_date)}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Total</span>
+                                <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(o.total_price)}</span>
+                            </div>
+                            <div className="mobile-card-actions">
+                                <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm">
+                                    <FaEye /> Detail
+                                </Link>
+                                {!['Selesai', 'Dibatalkan'].includes(o.status) && (
+                                    <button className="btn btn-danger btn-sm" onClick={() => openDeleteModal(o.id, o.order_number)}>
+                                        <FaTrash /> Batalkan
+                                    </button>
+                                )}
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
 
             <ConfirmModal

@@ -66,6 +66,8 @@ const AdminDashboard = () => {
                     <h3 className="table-title">Pesanan Terbaru</h3>
                     <Link to="/admin/orders" className="btn btn-primary btn-sm">Lihat Semua</Link>
                 </div>
+                
+                {/* Desktop Table */}
                 <table>
                     <thead>
                         <tr>
@@ -98,6 +100,39 @@ const AdminDashboard = () => {
                         ))}
                     </tbody>
                 </table>
+
+                {/* Mobile Card View */}
+                <div className="mobile-card" style={{padding: 15}}>
+                    {loading ? (
+                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
+                    ) : recentOrders.length === 0 ? (
+                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan</div>
+                    ) : recentOrders.map(o => (
+                        <div key={o.id} className="mobile-card-item">
+                            <div className="mobile-card-header">
+                                <span className="mobile-card-title">{o.order_number}</span>
+                                <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Pelanggan</span>
+                                <span className="mobile-card-value">{o.customer_name}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Tanggal</span>
+                                <span className="mobile-card-value">{formatDate(o.entry_date)}</span>
+                            </div>
+                            <div className="mobile-card-row">
+                                <span className="mobile-card-label">Total</span>
+                                <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(o.total_price)}</span>
+                            </div>
+                            <div className="mobile-card-actions">
+                                <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm">
+                                    <FaEye /> Detail
+                                </Link>
+                            </div>
+                        </div>
+                    ))}
+                </div>
             </div>
         </DashboardLayout>
     );
