@@ -73,7 +73,7 @@ const AdminOrders = () => {
                     </div>
                 </div>
                 <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
-                    <table style={{minWidth: 650}}>
+                    <table style={{minWidth: 700}}>
                         <thead>
                             <tr>
                                 <th>No. Order</th>
@@ -105,13 +105,9 @@ const AdminOrders = () => {
                                     </td>
                                     <td>
                                         <div style={{display: 'flex', gap: 8}}>
-                                            <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5}}>
-                                                <FaEye /> Detail
-                                            </Link>
+                                            <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm"><FaEye /> Detail</Link>
                                             {!['Selesai', 'Dibatalkan'].includes(o.status) && (
-                                                <button className="btn btn-danger btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5}} onClick={() => openDeleteModal(o.id, o.order_number)}>
-                                                    <FaTrash />
-                                                </button>
+                                                <button className="btn btn-danger btn-sm" onClick={() => openDeleteModal(o.id, o.order_number)}><FaTrash /></button>
                                             )}
                                         </div>
                                     </td>

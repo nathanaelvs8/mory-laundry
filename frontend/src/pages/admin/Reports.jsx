@@ -173,7 +173,7 @@ const AdminReports = () => {
                     </table>
                 </div>
 
-                {/* Total Footer - stays fixed */}
+                {/* Total Footer - TIDAK ikut scroll */}
                 {filteredOrders.length > 0 && (
                     <div style={{padding: 15, background: '#f9f9f9', borderTop: '2px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10}}>
                         <span style={{fontWeight: 600}}>Total Pendapatan (Selesai):</span>

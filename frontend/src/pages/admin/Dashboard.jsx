@@ -66,8 +66,6 @@ const AdminDashboard = () => {
                     <h3 className="table-title">Pesanan Terbaru</h3>
                     <Link to="/admin/orders" className="btn btn-primary btn-sm">Lihat Semua</Link>
                 </div>
-                
-                {/* Table dengan scroll horizontal di mobile */}
                 <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
                     <table style={{minWidth: 600}}>
                         <thead>
@@ -93,9 +91,7 @@ const AdminDashboard = () => {
                                     <td style={{textAlign: 'right'}}>Rp {formatPrice(o.total_price)}</td>
                                     <td style={{textAlign: 'center'}}><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
                                     <td>
-                                        <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm" style={{padding: '6px 12px'}}>
-                                            <FaEye /> Detail
-                                        </Link>
+                                        <Link to={`/admin/orders/${o.id}`} className="btn btn-primary btn-sm"><FaEye /> Detail</Link>
                                     </td>
                                 </tr>
                             ))}
