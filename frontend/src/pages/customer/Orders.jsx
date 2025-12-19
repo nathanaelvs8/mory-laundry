@@ -41,75 +41,44 @@ const CustomerOrders = () => {
             <div className="table-container">
                 <div className="table-header">
                     <h3 className="table-title">Riwayat Pesanan</h3>
-                    <div className="search-box" style={{width: '100%', maxWidth: 300, marginTop: 10}}>
+                    <div className="search-box" style={{marginTop: 10}}>
                         <FaSearch />
                         <input type="text" placeholder="Cari pesanan..." value={search} onChange={(e) => setSearch(e.target.value)} />
                     </div>
                 </div>
-
-                {/* Desktop Table */}
-                <table>
-                    <thead>
-                        <tr>
-                            <th>No. Order</th>
-                            <th>Tanggal</th>
-                            <th>Total</th>
-                            <th>Status</th>
-                            <th style={{width: 120}}>Aksi</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        {loading ? (
-                            <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                        ) : filteredOrders.length === 0 ? (
-                            <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>
-                                {search ? 'Pesanan tidak ditemukan' : 'Belum ada pesanan'}
-                            </td></tr>
-                        ) : filteredOrders.map(o => (
-                            <tr key={o.id}>
-                                <td><strong>{o.order_number}</strong></td>
-                                <td>{formatDate(o.entry_date)}</td>
-                                <td>Rp {formatPrice(o.total_price)}</td>
-                                <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
-                                <td>
-                                    <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm" style={{display: 'inline-flex', alignItems: 'center', gap: 5, padding: '8px 15px'}}>
-                                        <FaEye /> Detail
-                                    </Link>
-                                </td>
+                <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>No. Order</th>
+                                <th>Tanggal</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th style={{width: 100}}>Aksi</th>
                             </tr>
-                        ))}
-                    </tbody>
-                </table>
-
-                {/* Mobile Card View */}
-                <div className="mobile-card" style={{padding: 15}}>
-                    {loading ? (
-                        <div style={{textAlign: 'center', padding: 40}}>Loading...</div>
-                    ) : filteredOrders.length === 0 ? (
-                        <div style={{textAlign: 'center', padding: 40, color: '#999'}}>
-                            {search ? 'Pesanan tidak ditemukan' : 'Belum ada pesanan'}
-                        </div>
-                    ) : filteredOrders.map(o => (
-                        <div key={o.id} className="mobile-card-item">
-                            <div className="mobile-card-header">
-                                <span className="mobile-card-title">{o.order_number}</span>
-                                <span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span>
-                            </div>
-                            <div className="mobile-card-row">
-                                <span className="mobile-card-label">Tanggal</span>
-                                <span className="mobile-card-value">{formatDate(o.entry_date)}</span>
-                            </div>
-                            <div className="mobile-card-row">
-                                <span className="mobile-card-label">Total</span>
-                                <span className="mobile-card-value" style={{fontWeight: 600, color: 'var(--gold)'}}>Rp {formatPrice(o.total_price)}</span>
-                            </div>
-                            <div className="mobile-card-actions">
-                                <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm">
-                                    <FaEye /> Detail
-                                </Link>
-                            </div>
-                        </div>
-                    ))}
+                        </thead>
+                        <tbody>
+                            {loading ? (
+                                <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
+                            ) : filteredOrders.length === 0 ? (
+                                <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>
+                                    {search ? 'Pesanan tidak ditemukan' : 'Belum ada pesanan'}
+                                </td></tr>
+                            ) : filteredOrders.map(o => (
+                                <tr key={o.id}>
+                                    <td><strong>{o.order_number}</strong></td>
+                                    <td>{formatDate(o.entry_date)}</td>
+                                    <td>Rp {formatPrice(o.total_price)}</td>
+                                    <td><span className={`status-badge ${getStatusClass(o.status)}`}>{o.status}</span></td>
+                                    <td>
+                                        <Link to={`/customer/orders/${o.id}`} className="btn btn-primary btn-sm">
+                                            <FaEye /> Detail
+                                        </Link>
+                                    </td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </DashboardLayout>

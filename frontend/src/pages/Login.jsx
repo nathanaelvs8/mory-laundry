@@ -1,117 +1,134 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import { useAuth } from '../context/AuthContext';
-import { FaSignInAlt, FaUser, FaLock, FaExclamationCircle } from 'react-icons/fa';
+import { FaUser, FaLock, FaEye, FaEyeSlash } from 'react-icons/fa';
 
 const Login = () => {
-    const [formData, setFormData] = useState({ username: '', password: '' });
-    const [loading, setLoading] = useState(false);
-    const [error, setError] = useState('');
-    const { login } = useAuth();
     const navigate = useNavigate();
-    const formRef = useRef(null);
+    const { login } = useAuth();
+    const [formData, setFormData] = useState({ username: '', password: '' });
+    const [showPassword, setShowPassword] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     const handleChange = (e) => {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        if (error) setError(''); // Clear error saat user mulai ketik
     };
 
     const handleSubmit = async (e) => {
         e.preventDefault();
-        
         if (!formData.username || !formData.password) {
-            setError('Username dan password harus diisi');
+            toast.error('Username dan password wajib diisi');
             return;
         }
-        
         setLoading(true);
-        setError('');
-        
         try {
-            const user = await login(formData);
-            toast.success(`Selamat datang, ${user.full_name}!`);
-            navigate(user.role === 'admin' ? '/admin/dashboard' : '/customer/dashboard');
+            const result = await login(formData.username, formData.password);
+            if (result.success) {
+                toast.success('Login berhasil!');
+                navigate(result.user.role === 'admin' ? '/admin/dashboard' : '/customer/dashboard');
+            } else {
+                toast.error(result.message || 'Login gagal');
+            }
         } catch (err) {
-            console.log('Login error:', err);
-            const errorMsg = err.response?.data?.message || 'Login gagal. Periksa username dan password Anda.';
-            setError(errorMsg);
-            setLoading(false);
-            // Focus ke password field
-            const pwField = formRef.current?.querySelector('input[name="password"]');
-            if (pwField) pwField.focus();
+            toast.error('Terjadi kesalahan');
         }
+        setLoading(false);
     };
 
     return (
         <div className="auth-page">
-            <div className="auth-card">
-                <div className="auth-logo">
-                    <Link to="/"><img src="/images/logo.png" alt="Mory Laundry" /></Link>
-                </div>
-                <h1 className="auth-title">Selamat Datang</h1>
-                <p className="auth-subtitle">Masuk ke akun Anda untuk melanjutkan</p>
-                
-                {/* Error Message */}
-                {error && (
-                    <div style={{
-                        background: '#fff2f2',
-                        border: '1px solid #ffccc7',
-                        borderRadius: 8,
-                        padding: '12px 15px',
-                        marginBottom: 20,
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: 10,
-                        color: '#cf1322',
-                        animation: 'shake 0.5s ease-in-out'
-                    }}>
-                        <FaExclamationCircle style={{flexShrink: 0}} />
-                        <span>{error}</span>
+            <div className="auth-container">
+                <div className="auth-card">
+                    {/* Logo - Centered & Large */}
+                    <div className="auth-logo" style={{ textAlign: 'center', marginBottom: 30 }}>
+                        <img src="/images/logo.png" alt="Mory Laundry" style={{ height: 100 }} />
                     </div>
-                )}
-                
-                <form ref={formRef} onSubmit={handleSubmit}>
-                    <div className="form-group">
-                        <label className="form-label"><FaUser style={{marginRight: 8}} />Username</label>
-                        <input 
-                            type="text" 
-                            name="username" 
-                            className="form-control" 
-                            placeholder="Masukkan username" 
-                            value={formData.username} 
-                            onChange={handleChange}
-                            autoComplete="username"
-                            style={error ? {borderColor: '#ff7875'} : {}}
-                        />
+
+                    <h2 style={{ textAlign: 'center', marginBottom: 10 }}>Selamat Datang!</h2>
+                    <p style={{ textAlign: 'center', color: '#666', marginBottom: 30 }}>Masuk ke akun Anda</p>
+
+                    <form onSubmit={handleSubmit}>
+                        <div className="form-group">
+                            <label className="form-label">Username</label>
+                            <div style={{ position: 'relative' }}>
+                                <FaUser style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+                                <input
+                                    type="text"
+                                    name="username"
+                                    className="form-control"
+                                    placeholder="Masukkan username"
+                                    value={formData.username}
+                                    onChange={handleChange}
+                                    style={{ paddingLeft: 45 }}
+                                />
+                            </div>
+                        </div>
+
+                        <div className="form-group">
+                            <label className="form-label">Password</label>
+                            <div style={{ position: 'relative' }}>
+                                <FaLock style={{ position: 'absolute', left: 15, top: '50%', transform: 'translateY(-50%)', color: '#999' }} />
+                                <input
+                                    type={showPassword ? 'text' : 'password'}
+                                    name="password"
+                                    className="form-control"
+                                    placeholder="Masukkan password"
+                                    value={formData.password}
+                                    onChange={handleChange}
+                                    style={{ paddingLeft: 45, paddingRight: 45 }}
+                                />
+                                <button
+                                    type="button"
+                                    onClick={() => setShowPassword(!showPassword)}
+                                    style={{ position: 'absolute', right: 15, top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', color: '#999', cursor: 'pointer' }}
+                                >
+                                    {showPassword ? <FaEyeSlash /> : <FaEye />}
+                                </button>
+                            </div>
+                        </div>
+
+                        <button type="submit" className="btn btn-primary btn-lg" disabled={loading} style={{ width: '100%', marginTop: 10 }}>
+                            {loading ? 'Memproses...' : 'Masuk'}
+                        </button>
+                    </form>
+
+                    {/* Footer - Centered with different color link */}
+                    <div className="auth-footer" style={{ textAlign: 'center', marginTop: 25, paddingTop: 20, borderTop: '1px solid #eee' }}>
+                        <span style={{ color: '#666' }}>Belum punya akun? </span>
+                        <Link to="/signup" style={{ color: 'var(--gold)', fontWeight: 600, textDecoration: 'none' }}>
+                            Daftar Sekarang
+                        </Link>
                     </div>
-                    <div className="form-group">
-                        <label className="form-label"><FaLock style={{marginRight: 8}} />Password</label>
-                        <input 
-                            type="password" 
-                            name="password" 
-                            className="form-control" 
-                            placeholder="Masukkan password" 
-                            value={formData.password} 
-                            onChange={handleChange}
-                            autoComplete="current-password"
-                            style={error ? {borderColor: '#ff7875'} : {}}
-                        />
-                    </div>
-                    <button type="submit" className="btn btn-primary" style={{width: '100%'}} disabled={loading}>
-                        <FaSignInAlt /> {loading ? 'Loading...' : 'Masuk'}
-                    </button>
-                </form>
-                <div className="auth-footer">
-                    Belum punya akun? <Link to="/signup">Daftar Sekarang</Link>
                 </div>
             </div>
-            
+
             <style>{`
-                @keyframes shake {
-                    0%, 100% { transform: translateX(0); }
-                    20%, 60% { transform: translateX(-5px); }
-                    40%, 80% { transform: translateX(5px); }
+                .auth-page {
+                    min-height: 100vh;
+                    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    padding: 20px;
+                }
+                .auth-container {
+                    width: 100%;
+                    max-width: 420px;
+                }
+                .auth-card {
+                    background: #fff;
+                    border-radius: 16px;
+                    padding: 40px 30px;
+                    box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+                }
+                @media (max-width: 480px) {
+                    .auth-card {
+                        padding: 30px 20px;
+                    }
+                    .auth-logo img {
+                        height: 80px !important;
+                    }
                 }
             `}</style>
         </div>
