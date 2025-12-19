@@ -45,19 +45,19 @@ const AdminUsers = () => {
                 <table>
                     <thead><tr><th>No</th><th>Nama Lengkap</th><th>Username</th><th>No. HP</th><th>Role</th><th>Tgl Daftar</th><th>Aksi</th></tr></thead>
                     <tbody>
-                        {loading ? <tr><td colSpan="7" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                        : filtered.length === 0 ? <tr><td colSpan="7" style={{textAlign: 'center', padding: 40, color: '#999'}}>Tidak ada data</td></tr>
-                        : filtered.map((u, i) => (
-                            <tr key={u.id}>
-                                <td>{i + 1}</td>
-                                <td><strong>{u.full_name}</strong></td>
-                                <td>{u.username}</td>
-                                <td>{u.phone_number || '-'}</td>
-                                <td><span className={`status-badge ${u.role === 'admin' ? 'selesai' : 'antrian'}`}>{u.role}</span></td>
-                                <td>{formatDate(u.created_at)}</td>
-                                <td>{u.role !== 'admin' && <button className="action-btn delete" onClick={() => handleDeleteClick(u.id, u.full_name, u.role)}><FaTrash /></button>}</td>
-                            </tr>
-                        ))}
+                        {loading ? <tr><td colSpan="7" style={{ textAlign: 'center', padding: 40 }}>Loading...</td></tr>
+                            : filtered.length === 0 ? <tr><td colSpan="7" style={{ textAlign: 'center', padding: 40, color: '#999' }}>Tidak ada data</td></tr>
+                                : filtered.map((u, i) => (
+                                    <tr key={u.id}>
+                                        <td>{i + 1}</td>
+                                        <td><strong>{u.full_name}</strong></td>
+                                        <td>{u.username}</td>
+                                        <td>{u.phone_number || '-'}</td>
+                                        <td><span className={`status-badge ${u.role === 'admin' ? 'selesai' : 'antrian'}`}>{u.role}</span></td>
+                                        <td>{formatDate(u.created_at)}</td>
+                                        <td>{u.role !== 'admin' && <button className="action-btn delete" onClick={() => handleDeleteClick(u.id, u.full_name, u.role)}><FaTrash /></button>}</td>
+                                    </tr>
+                                ))}
                     </tbody>
                 </table>
             </div>
