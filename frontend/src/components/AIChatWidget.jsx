@@ -15,6 +15,7 @@ const AIChatWidget = () => {
     const [loading, setLoading] = useState(false);
     const [typingText, setTypingText] = useState('');
     const [isTypingEffect, setIsTypingEffect] = useState(false);
+    const [isMobile, setIsMobile] = useState(false);
     const messagesEndRef = useRef(null);
     const chatBoxRef = useRef(null);
     
@@ -35,14 +36,21 @@ const AIChatWidget = () => {
         white: '#FFFFFF'
     };
 
+    // Check if mobile
+    useEffect(() => {
+        const checkMobile = () => {
+            setIsMobile(window.innerWidth <= 768);
+        };
+        checkMobile();
+        window.addEventListener('resize', checkMobile);
+        return () => window.removeEventListener('resize', checkMobile);
+    }, []);
+
     // Parse markdown bold **text** to <strong>
     const parseMarkdown = (text) => {
         if (!text) return '';
-        // Replace **text** with <strong>text</strong>
         let parsed = text.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-        // Replace *text* with <em>text</em>
         parsed = parsed.replace(/\*(.+?)\*/g, '<em>$1</em>');
-        // Replace newlines with <br>
         parsed = parsed.replace(/\n/g, '<br>');
         return parsed;
     };
@@ -57,11 +65,10 @@ const AIChatWidget = () => {
         setIsTypingEffect(true);
         setTypingText('');
         let index = 0;
-        const speed = 15; // ms per character
+        const speed = 15;
 
         const type = () => {
             if (index < fullText.length) {
-                // Add multiple characters at once for faster typing
                 const chunkSize = 3;
                 const chunk = fullText.slice(index, index + chunkSize);
                 setTypingText(prev => prev + chunk);
@@ -76,8 +83,9 @@ const AIChatWidget = () => {
         type();
     };
 
-    // Handle drag start
+    // Handle drag start - only on desktop
     const handleDragStart = (e) => {
+        if (isMobile) return; // Disable drag on mobile
         if (chatBoxRef.current) {
             const rect = chatBoxRef.current.getBoundingClientRect();
             setDragOffset({
@@ -90,6 +98,8 @@ const AIChatWidget = () => {
 
     // Handle drag move
     useEffect(() => {
+        if (isMobile) return; // Disable drag on mobile
+        
         const handleMouseMove = (e) => {
             if (isDragging) {
                 const newX = e.clientX - dragOffset.x;
@@ -114,7 +124,7 @@ const AIChatWidget = () => {
             document.removeEventListener('mousemove', handleMouseMove);
             document.removeEventListener('mouseup', handleMouseUp);
         };
-    }, [isDragging, dragOffset]);
+    }, [isDragging, dragOffset, isMobile]);
 
     const handleSend = async () => {
         if (!input.trim() || loading || isTypingEffect) return;
@@ -131,7 +141,6 @@ const AIChatWidget = () => {
                 const aiMessage = response.data.data.message;
                 setLoading(false);
                 
-                // Start typing effect
                 typeMessage(aiMessage, (fullText) => {
                     setMessages(prev => [...prev, {
                         role: 'assistant',
@@ -162,21 +171,21 @@ const AIChatWidget = () => {
         'Pendapatan hari ini?',
         'Pesanan belum selesai?',
         'Top pelanggan?',
-        'Pesanan terbaru?'
+        'Web ini buat apa?'
     ];
 
     const handleQuickQuestion = (question) => {
         setInput(question);
     };
 
-    // Styles
+    // Styles - responsive
     const styles = {
         floatingButton: {
             position: 'fixed',
-            bottom: 30,
-            right: 30,
-            width: 65,
-            height: 65,
+            bottom: isMobile ? 20 : 30,
+            right: isMobile ? 20 : 30,
+            width: isMobile ? 55 : 65,
+            height: isMobile ? 55 : 65,
             borderRadius: '50%',
             background: theme.gradient,
             border: `3px solid ${theme.white}`,
@@ -192,41 +201,51 @@ const AIChatWidget = () => {
         },
         chatBox: {
             position: 'fixed',
-            width: 370,
-            height: 520,
             background: theme.white,
-            borderRadius: 20,
-            boxShadow: '0 10px 40px rgba(0,0,0,0.15), 0 0 0 1px rgba(212, 167, 69, 0.1)',
+            borderRadius: isMobile ? '20px 20px 0 0' : 20,
+            boxShadow: '0 10px 40px rgba(0,0,0,0.15)',
             display: 'flex',
             flexDirection: 'column',
             overflow: 'hidden',
             zIndex: 1001,
-            ...(position.x !== null ? {
-                left: position.x,
-                top: position.y
+            // Mobile: full width at bottom
+            ...(isMobile ? {
+                bottom: 0,
+                left: 0,
+                right: 0,
+                width: '100%',
+                height: '70vh',
+                maxHeight: '70vh'
             } : {
-                bottom: 110,
-                right: 30
+                width: 370,
+                height: 520,
+                ...(position.x !== null ? {
+                    left: position.x,
+                    top: position.y
+                } : {
+                    bottom: 110,
+                    right: 30
+                })
             })
         },
         header: {
             background: theme.gradient,
-            padding: '15px 20px',
+            padding: isMobile ? '12px 15px' : '15px 20px',
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            cursor: isDragging ? 'grabbing' : 'grab',
+            cursor: isMobile ? 'default' : (isDragging ? 'grabbing' : 'grab'),
             userSelect: 'none'
         },
         headerLeft: {
             display: 'flex',
             alignItems: 'center',
-            gap: 12,
+            gap: 10,
             color: theme.white
         },
         headerIconWrapper: {
-            width: 40,
-            height: 40,
+            width: isMobile ? 35 : 40,
+            height: isMobile ? 35 : 40,
             borderRadius: '50%',
             background: 'rgba(255,255,255,0.25)',
             display: 'flex',
@@ -236,26 +255,27 @@ const AIChatWidget = () => {
         },
         headerTitle: {
             margin: 0,
-            fontSize: 16,
+            fontSize: isMobile ? 14 : 16,
             fontWeight: 700,
             color: theme.white
         },
         headerSubtitle: {
             margin: 0,
-            fontSize: 11,
+            fontSize: isMobile ? 10 : 11,
             opacity: 0.9,
             color: theme.white
         },
         dragIcon: {
             opacity: 0.7,
-            marginRight: 4
+            marginRight: 4,
+            display: isMobile ? 'none' : 'block'
         },
         closeBtn: {
             background: 'rgba(255,255,255,0.25)',
             border: 'none',
             color: theme.white,
-            width: 32,
-            height: 32,
+            width: isMobile ? 30 : 32,
+            height: isMobile ? 30 : 32,
             borderRadius: '50%',
             cursor: 'pointer',
             display: 'flex',
@@ -266,12 +286,12 @@ const AIChatWidget = () => {
         messagesContainer: {
             flex: 1,
             overflowY: 'auto',
-            padding: 15,
+            padding: isMobile ? 12 : 15,
             background: theme.background
         },
         message: (isUser) => ({
             maxWidth: '85%',
-            padding: '12px 16px',
+            padding: isMobile ? '10px 14px' : '12px 16px',
             borderRadius: isUser ? '18px 18px 4px 18px' : '18px 18px 18px 4px',
             marginBottom: 12,
             marginLeft: isUser ? 'auto' : 0,
@@ -282,11 +302,11 @@ const AIChatWidget = () => {
                 ? '0 2px 10px rgba(212, 167, 69, 0.3)' 
                 : '0 2px 10px rgba(0,0,0,0.06)',
             wordBreak: 'break-word',
-            fontSize: 14,
+            fontSize: isMobile ? 13 : 14,
             lineHeight: 1.6
         }),
         quickQuestions: {
-            padding: '10px 15px',
+            padding: isMobile ? '8px 12px' : '10px 15px',
             background: theme.white,
             borderTop: `1px solid #f0f0f0`,
             display: 'flex',
@@ -294,8 +314,8 @@ const AIChatWidget = () => {
             flexWrap: 'wrap'
         },
         quickBtn: {
-            padding: '6px 12px',
-            fontSize: 11,
+            padding: isMobile ? '5px 10px' : '6px 12px',
+            fontSize: isMobile ? 10 : 11,
             background: theme.background,
             border: `1px solid ${theme.primaryLight}`,
             borderRadius: 20,
@@ -305,7 +325,7 @@ const AIChatWidget = () => {
             fontWeight: 500
         },
         inputContainer: {
-            padding: 15,
+            padding: isMobile ? '12px 12px 20px' : 15,
             background: theme.white,
             borderTop: '1px solid #f0f0f0',
             display: 'flex',
@@ -314,17 +334,17 @@ const AIChatWidget = () => {
         },
         input: {
             flex: 1,
-            padding: '12px 18px',
+            padding: isMobile ? '10px 14px' : '12px 18px',
             border: `2px solid #eee`,
             borderRadius: 25,
             outline: 'none',
-            fontSize: 14,
+            fontSize: isMobile ? 14 : 14,
             transition: 'border-color 0.2s',
             background: theme.background
         },
         sendBtn: {
-            width: 46,
-            height: 46,
+            width: isMobile ? 42 : 46,
+            height: isMobile ? 42 : 46,
             borderRadius: '50%',
             background: theme.gradient,
             border: 'none',
@@ -334,7 +354,8 @@ const AIChatWidget = () => {
             alignItems: 'center',
             justifyContent: 'center',
             transition: 'all 0.2s',
-            boxShadow: '0 2px 10px rgba(212, 167, 69, 0.3)'
+            boxShadow: '0 2px 10px rgba(212, 167, 69, 0.3)',
+            flexShrink: 0
         },
         typingIndicator: {
             display: 'flex',
@@ -361,8 +382,15 @@ const AIChatWidget = () => {
             color: theme.text,
             boxShadow: '0 2px 10px rgba(0,0,0,0.06)',
             wordBreak: 'break-word',
-            fontSize: 14,
+            fontSize: isMobile ? 13 : 14,
             lineHeight: 1.6
+        },
+        overlay: {
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.5)',
+            zIndex: 1000,
+            display: isMobile && isOpen ? 'block' : 'none'
         }
     };
 
@@ -426,6 +454,9 @@ const AIChatWidget = () => {
                 }
             `}</style>
 
+            {/* Overlay for mobile */}
+            <div style={styles.overlay} onClick={() => setIsOpen(false)} />
+
             {/* Floating Button */}
             {!isOpen && (
                 <button 
@@ -434,7 +465,7 @@ const AIChatWidget = () => {
                     onClick={() => setIsOpen(true)}
                     title="Chat dengan AI Assistant"
                 >
-                    <FaRobot size={28} color="#fff" />
+                    <FaRobot size={isMobile ? 24 : 28} color="#fff" />
                 </button>
             )}
 
@@ -446,7 +477,7 @@ const AIChatWidget = () => {
                         <div style={styles.headerLeft}>
                             <FaGripVertical size={12} style={styles.dragIcon} />
                             <div style={styles.headerIconWrapper}>
-                                <FaRobot size={22} />
+                                <FaRobot size={isMobile ? 18 : 22} />
                             </div>
                             <div>
                                 <h4 style={styles.headerTitle}>AI Assistant</h4>
