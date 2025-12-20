@@ -17,6 +17,7 @@ const AdminOrderDetail = () => {
     const loadOrder = async () => {
         try {
             const res = await ordersAPI.getById(id);
+            console.log('Order data from backend:', res.data.data); // DEBUG
             setOrder(res.data.data);
         } catch (err) { toast.error('Gagal memuat data pesanan'); }
         setLoading(false);
