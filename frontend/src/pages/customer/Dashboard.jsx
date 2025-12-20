@@ -5,6 +5,7 @@ import DashboardLayout from '../../components/DashboardLayout.jsx';
 import ConfirmModal from '../../components/ConfirmModal.jsx';
 import { ordersAPI } from '../../services/api';
 import { FaShoppingCart, FaClock, FaCheckCircle, FaPlus, FaWhatsapp, FaEye, FaTimes } from 'react-icons/fa';
+import './CustomerDashboard.css';
 
 const CustomerDashboard = () => {
     const [stats, setStats] = useState({ total: 0, active: 0, completed: 0 });
@@ -53,36 +54,72 @@ const CustomerDashboard = () => {
 
     return (
         <DashboardLayout title="Dashboard">
-            <div className="stats-grid">
-                <div className="stat-card"><div className="stat-icon gold"><FaShoppingCart /></div><div><div className="stat-value">{stats.total}</div><div className="stat-label">Total Pesanan</div></div></div>
-                <div className="stat-card"><div className="stat-icon orange"><FaClock /></div><div><div className="stat-value">{stats.active}</div><div className="stat-label">Pesanan Aktif</div></div></div>
-                <div className="stat-card"><div className="stat-icon green"><FaCheckCircle /></div><div><div className="stat-value">{stats.completed}</div><div className="stat-label">Pesanan Selesai</div></div></div>
+            {/* Stats - 3 items in a row on mobile */}
+            <div className="stats-grid customer-stats">
+                <div className="stat-card">
+                    <div className="stat-icon gold"><FaShoppingCart /></div>
+                    <div>
+                        <div className="stat-value">{stats.total}</div>
+                        <div className="stat-label">Total Pesanan</div>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-icon orange"><FaClock /></div>
+                    <div>
+                        <div className="stat-value">{stats.active}</div>
+                        <div className="stat-label">Pesanan Aktif</div>
+                    </div>
+                </div>
+                <div className="stat-card">
+                    <div className="stat-icon green"><FaCheckCircle /></div>
+                    <div>
+                        <div className="stat-value">{stats.completed}</div>
+                        <div className="stat-label">Selesai</div>
+                    </div>
+                </div>
             </div>
 
-            <div style={{display: 'flex', gap: 15, marginBottom: 25, flexWrap: 'wrap'}}>
-                <Link to="/customer/orders/new" style={{textDecoration: 'none', flex: '1 1 250px'}}>
-                    <div style={{background: 'linear-gradient(135deg, var(--gold), var(--gold-light))', borderRadius: 12, padding: 20, color: 'white', display: 'flex', alignItems: 'center', gap: 15, cursor: 'pointer'}}>
-                        <div style={{width: 45, height: 45, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0}}><FaPlus /></div>
-                        <div><h3 style={{margin: '0 0 3px', fontSize: 15}}>Buat Pesanan Baru</h3><p style={{margin: 0, opacity: .9, fontSize: 12}}>Pesan layanan laundry</p></div>
+            {/* Action Buttons - stack on mobile */}
+            <div className="action-buttons">
+                <Link to="/customer/orders/new" className="action-btn-card gold">
+                    <div className="action-btn-icon"><FaPlus /></div>
+                    <div className="action-btn-text">
+                        <h3>Buat Pesanan Baru</h3>
+                        <p>Pesan layanan laundry</p>
                     </div>
                 </Link>
-                <a href="https://wa.me/6281217607101" target="_blank" rel="noreferrer" style={{textDecoration: 'none', flex: '1 1 250px'}}>
-                    <div style={{background: 'linear-gradient(135deg, #25D366, #128C7E)', borderRadius: 12, padding: 20, color: 'white', display: 'flex', alignItems: 'center', gap: 15, cursor: 'pointer'}}>
-                        <div style={{width: 45, height: 45, background: 'rgba(255,255,255,.2)', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: 18, flexShrink: 0}}><FaWhatsapp /></div>
-                        <div><h3 style={{margin: '0 0 3px', fontSize: 15}}>Hubungi Kami</h3><p style={{margin: 0, opacity: .9, fontSize: 12}}>Chat via WhatsApp</p></div>
+                <a href="https://wa.me/6281217607101" target="_blank" rel="noreferrer" className="action-btn-card green">
+                    <div className="action-btn-icon"><FaWhatsapp /></div>
+                    <div className="action-btn-text">
+                        <h3>Hubungi Kami</h3>
+                        <p>Chat via WhatsApp</p>
                     </div>
                 </a>
             </div>
 
+            {/* Table - scrollable horizontally */}
             <div className="table-container">
-                <div className="table-header"><h3 className="table-title">Pesanan Terbaru</h3><Link to="/customer/orders" className="btn btn-primary btn-sm">Lihat Semua</Link></div>
+                <div className="table-header">
+                    <h3 className="table-title">Pesanan Terbaru</h3>
+                    <Link to="/customer/orders" className="btn btn-primary btn-sm">Lihat Semua</Link>
+                </div>
                 <div style={{overflowX: 'auto', WebkitOverflowScrolling: 'touch'}}>
                     <table style={{minWidth: 500}}>
-                        <thead><tr><th>No. Order</th><th>Tanggal</th><th>Total</th><th>Status</th><th>Aksi</th></tr></thead>
+                        <thead>
+                            <tr>
+                                <th>No. Order</th>
+                                <th>Tanggal</th>
+                                <th>Total</th>
+                                <th>Status</th>
+                                <th>Aksi</th>
+                            </tr>
+                        </thead>
                         <tbody>
-                            {loading ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
-                            : recentOrders.length === 0 ? <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan</td></tr>
-                            : recentOrders.map(o => (
+                            {loading ? (
+                                <tr><td colSpan="5" style={{textAlign: 'center', padding: 40}}>Loading...</td></tr>
+                            ) : recentOrders.length === 0 ? (
+                                <tr><td colSpan="5" style={{textAlign: 'center', padding: 40, color: '#999'}}>Belum ada pesanan</td></tr>
+                            ) : recentOrders.map(o => (
                                 <tr key={o.id}>
                                     <td><strong>{o.order_number}</strong></td>
                                     <td>{formatDate(o.entry_date)}</td>

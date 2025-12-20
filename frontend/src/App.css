@@ -250,17 +250,31 @@ tr:hover { background: var(--light); }
     .footer-social { justify-content: center; }
     .footer-bottom { justify-content: center; text-align: center; }
     
-    /* Stats Grid - 2x2 on mobile */
-    .stats-grid { grid-template-columns: 1fr 1fr; gap: 10px; }
-    .stat-card { padding: 12px 10px; gap: 8px; }
-    .stat-icon { width: 36px; height: 36px; font-size: 14px; min-width: 36px; }
-    .stat-value { font-size: 16px; line-height: 1.2; }
-    .stat-label { font-size: 10px; line-height: 1.2; }
+    /* Stats Grid - 3 columns on mobile for customer (3 items), 2x2 for admin (4 items) */
+    .stats-grid { 
+        grid-template-columns: repeat(3, 1fr); 
+        gap: 8px; 
+    }
+    .stats-grid.four-items {
+        grid-template-columns: 1fr 1fr;
+    }
+    .stat-card { 
+        padding: 10px 8px; 
+        gap: 6px; 
+        flex-direction: column;
+        text-align: center;
+    }
+    .stat-icon { 
+        width: 32px; 
+        height: 32px; 
+        font-size: 12px; 
+        min-width: 32px; 
+    }
+    .stat-value { font-size: 18px; line-height: 1.2; }
+    .stat-label { font-size: 9px; line-height: 1.2; }
     
-    /* Table horizontal scroll */
+    /* Table - NO global minWidth, let each page control it */
     .table-container { overflow: hidden; }
-    .table-scroll-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
-    table { min-width: 600px; }
     
     .navbar-container { padding: 0 15px; }
     .navbar-logo img { height: 45px; }

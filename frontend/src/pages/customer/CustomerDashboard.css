@@ -1,0 +1,115 @@
+/* Customer Dashboard specific styles */
+
+/* Action buttons container */
+.action-buttons {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 25px;
+    flex-wrap: wrap;
+}
+
+.action-btn-card {
+    flex: 1 1 250px;
+    text-decoration: none;
+    border-radius: 12px;
+    padding: 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.action-btn-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0,0,0,0.15);
+}
+
+.action-btn-card.gold {
+    background: linear-gradient(135deg, var(--gold), var(--gold-light));
+}
+
+.action-btn-card.green {
+    background: linear-gradient(135deg, #25D366, #128C7E);
+}
+
+.action-btn-icon {
+    width: 45px;
+    height: 45px;
+    background: rgba(255,255,255,0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+    flex-shrink: 0;
+}
+
+.action-btn-text h3 {
+    margin: 0 0 3px;
+    font-size: 15px;
+    font-weight: 600;
+}
+
+.action-btn-text p {
+    margin: 0;
+    opacity: 0.9;
+    font-size: 12px;
+}
+
+/* Mobile styles */
+@media (max-width: 768px) {
+    /* Customer stats - 3 in a row */
+    .customer-stats {
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 8px !important;
+    }
+    
+    .customer-stats .stat-card {
+        flex-direction: column !important;
+        text-align: center;
+        padding: 12px 6px !important;
+    }
+    
+    .customer-stats .stat-icon {
+        width: 30px !important;
+        height: 30px !important;
+        font-size: 12px !important;
+        margin: 0 auto 5px;
+    }
+    
+    .customer-stats .stat-value {
+        font-size: 20px !important;
+    }
+    
+    .customer-stats .stat-label {
+        font-size: 9px !important;
+        line-height: 1.2;
+    }
+    
+    /* Action buttons - stack vertically on small screens */
+    .action-buttons {
+        gap: 10px;
+    }
+    
+    .action-btn-card {
+        flex: 1 1 100%;
+        padding: 15px;
+        gap: 12px;
+    }
+    
+    .action-btn-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 16px;
+    }
+    
+    .action-btn-text h3 {
+        font-size: 14px;
+    }
+    
+    .action-btn-text p {
+        font-size: 11px;
+    }
+}
