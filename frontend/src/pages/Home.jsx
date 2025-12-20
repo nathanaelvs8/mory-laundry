@@ -28,7 +28,6 @@ const Home = () => {
     const handleScroll = () => setScrolled(window.scrollY > 50);
     const formatPrice = (price) => new Intl.NumberFormat('id-ID').format(price);
 
-    // Smooth scroll to section
     const scrollToSection = (e, sectionId) => {
         e.preventDefault();
         setMenuOpen(false);
@@ -63,21 +62,36 @@ const Home = () => {
             <nav className={`navbar ${scrolled ? 'scrolled' : ''}`}>
                 <div className="navbar-container">
                     <Link to="/" className="navbar-logo"><img src="/images/logo.png" alt="Mory Laundry" /></Link>
+                    
+                    {/* Desktop Menu */}
                     <ul className={`navbar-menu ${menuOpen ? 'active' : ''}`}>
                         <li><a href="#home" onClick={(e) => scrollToSection(e, 'home')}>Beranda</a></li>
                         <li><a href="#services" onClick={(e) => scrollToSection(e, 'services')}>Layanan</a></li>
                         <li><a href="#why-us" onClick={(e) => scrollToSection(e, 'why-us')}>Keunggulan</a></li>
                         <li><a href="#contact" onClick={(e) => scrollToSection(e, 'contact')}>Kontak</a></li>
+                        
+                        {/* Mobile: Tombol Login di dalam menu */}
+                        <li className="mobile-menu-auth">
+                            {isAuthenticated ? (
+                                <Link to={isAdmin ? "/admin/dashboard" : "/customer/dashboard"} className="btn btn-primary" style={{width: '100%', justifyContent: 'center'}} onClick={() => setMenuOpen(false)}>Dashboard</Link>
+                            ) : (
+                                <Link to="/login" className="btn btn-outline" style={{width: '100%', justifyContent: 'center'}} onClick={() => setMenuOpen(false)}>Masuk</Link>
+                            )}
+                        </li>
                     </ul>
+                    
                     <div className="navbar-auth">
+                        {/* Desktop: Tampil Masuk & Daftar / Dashboard */}
                         {isAuthenticated ? (
-                            <Link to={isAdmin ? "/admin/dashboard" : "/customer/dashboard"} className="btn btn-primary">Dashboard</Link>
+                            <Link to={isAdmin ? "/admin/dashboard" : "/customer/dashboard"} className="btn btn-primary desktop-only">Dashboard</Link>
                         ) : (
                             <>
-                                <Link to="/login" className="btn btn-outline">Masuk</Link>
+                                <Link to="/login" className="btn btn-outline desktop-only">Masuk</Link>
                                 <Link to="/signup" className="btn btn-primary">Daftar</Link>
                             </>
                         )}
+                        
+                        {/* Mobile: Hamburger toggle */}
                         <button className="navbar-toggle" onClick={() => setMenuOpen(!menuOpen)}>
                             {menuOpen ? <FaTimes /> : <FaBars />}
                         </button>

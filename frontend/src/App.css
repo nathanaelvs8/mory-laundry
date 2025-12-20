@@ -138,9 +138,12 @@ tr:hover { background: var(--light); }
 .navbar-menu a { font-size: 15px; font-weight: 500; color: #fff; text-transform: uppercase; letter-spacing: 1px; transition: color .3s; }
 .navbar.scrolled .navbar-menu a { color: var(--dark); }
 .navbar-menu a:hover { color: var(--gold); }
-.navbar-auth { display: flex; gap: 15px; }
+.navbar-auth { display: flex; gap: 15px; align-items: center; }
 .navbar-toggle { display: none; background: none; border: none; font-size: 28px; cursor: pointer; color: #fff; }
 .navbar.scrolled .navbar-toggle { color: var(--dark); }
+
+/* Hide mobile menu auth on desktop */
+.mobile-menu-auth { display: none; }
 
 /* Hero */
 .hero { min-height: 100vh; display: flex; align-items: center; background: linear-gradient(135deg, rgba(45,45,45,.7), rgba(0,0,0,.5)), url('/images/hero.png') center/cover; padding-top: 80px; }
@@ -217,10 +220,18 @@ tr:hover { background: var(--light); }
     .navbar-menu { display: none; position: absolute; top: 100%; left: 0; right: 0; background: #fff; flex-direction: column; padding: 20px; gap: 0; box-shadow: var(--shadow); }
     .navbar-menu.active { display: flex; }
     .navbar-menu li { border-bottom: 1px solid #eee; }
+    .navbar-menu li:last-child { border-bottom: none; }
     .navbar-menu a { display: block; padding: 15px 0; color: var(--dark) !important; }
     .navbar-toggle { display: block; }
     .navbar-auth { gap: 10px; }
     .navbar-auth .btn { padding: 10px 20px; font-size: 13px; }
+    
+    /* Desktop only - hide on tablet/mobile */
+    .desktop-only { display: none !important; }
+    
+    /* Mobile menu auth - show in dropdown menu */
+    .mobile-menu-auth { padding-top: 15px !important; margin-top: 10px; border-top: 1px solid #eee !important; border-bottom: none !important; }
+    .mobile-menu-auth .btn { display: flex !important; }
     
     .footer-grid { grid-template-columns: 1fr 1fr; }
 }
@@ -253,8 +264,13 @@ tr:hover { background: var(--light); }
     
     .navbar-container { padding: 0 15px; }
     .navbar-logo img { height: 45px; }
-    .navbar-auth .btn-outline { display: none; }
-    .navbar-auth .btn-primary { display: none; }
+    
+    /* Mobile navbar: hide Masuk (desktop-only), show Daftar */
+    .navbar-auth .desktop-only { display: none !important; }
+    .navbar-auth .btn-primary { display: inline-flex !important; padding: 8px 16px; font-size: 12px; }
+    
+    /* Hide mobile-menu-auth on desktop */
+    .mobile-menu-auth { display: block; }
     
     /* Auth pages */
     .auth-card { padding: 30px 20px; }
