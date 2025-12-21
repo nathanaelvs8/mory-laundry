@@ -39,12 +39,22 @@ const AIChatWidget = () => {
     // Check if mobile
     useEffect(() => {
         const checkMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
+            const mobile = window.innerWidth <= 768;
+            setIsMobile(mobile);
+            
+            // Reset position jika keluar viewport saat resize
+            if (!mobile && position.x !== null) {
+                const maxX = window.innerWidth - 380;
+                const maxY = window.innerHeight - 530;
+                if (position.x > maxX || position.y > maxY || position.y < 10) {
+                    setPosition({ x: null, y: null }); // Reset ke default position
+                }
+            }
         };
         checkMobile();
         window.addEventListener('resize', checkMobile);
         return () => window.removeEventListener('resize', checkMobile);
-    }, []);
+    }, [position]);
 
     // Parse markdown bold **text** to <strong>
     const parseMarkdown = (text) => {
@@ -104,11 +114,13 @@ const AIChatWidget = () => {
             if (isDragging) {
                 const newX = e.clientX - dragOffset.x;
                 const newY = e.clientY - dragOffset.y;
-                const maxX = window.innerWidth - 380;
-                const maxY = window.innerHeight - 520;
+                const chatWidth = 370;
+                const chatHeight = 520;
+                const maxX = window.innerWidth - chatWidth - 10;
+                const maxY = window.innerHeight - chatHeight - 10;
                 setPosition({
-                    x: Math.min(Math.max(0, newX), maxX),
-                    y: Math.min(Math.max(0, newY), maxY)
+                    x: Math.min(Math.max(10, newX), maxX),
+                    y: Math.min(Math.max(10, newY), maxY) // Minimal 10px dari atas
                 });
             }
         };
@@ -219,9 +231,10 @@ const AIChatWidget = () => {
             } : {
                 width: 370,
                 height: 520,
-                ...(position.x !== null ? {
-                    left: position.x,
-                    top: position.y
+                // Always use bottom/right for initial position, use left/top only when dragged
+                ...(position.x !== null && position.y !== null ? {
+                    left: Math.max(10, Math.min(position.x, window.innerWidth - 380)),
+                    top: Math.max(10, Math.min(position.y, window.innerHeight - 530))
                 } : {
                     bottom: 110,
                     right: 30
